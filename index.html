@@ -117,6 +117,7 @@ header .eyebrow{font-size:clamp(12px,1.3vw,15px)}
 #event-access label{display:grid;gap:6px;flex:1 1 240px}
 #event-access input{width:100%;padding:10px;font:inherit;border:1px solid #b9c9db;border-radius:8px}
 .events-heading{margin:0 0 20px}
+#add-event{margin:10px 0 0}
 .events-heading p{margin:4px 0 0;color:#536279}
 .events-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px 24px;margin-top:22px;padding-top:16px;border-top:1px solid #e1e6ed}
 .events-footer .events-closing{margin:0;max-width:64ch}
@@ -244,6 +245,7 @@ main{position:relative;z-index:2}
   <button class="events-back" id="events-back-year">← Back to year</button>
   <div class="events-heading">
     <h2 id="events-title">Events</h2>
+    <button type="button" id="add-event" hidden>+ Add event</button>
     <p>Birthday moments we shared.</p>
   </div>
   <article class="event-entry event-story" data-event="robert">
@@ -288,6 +290,7 @@ main{position:relative;z-index:2}
   <form id="event-form">
     <p class="editor-kicker">Birthday Atlas · Events</p><h2 id="event-editor-title">Edit event</h2>
     <label>Title <input id="event-title-input" required></label>
+    <label id="event-date-field" hidden>Celebration date <input id="event-date-input" type="date"></label>
     <label>Story <textarea id="event-story-input" rows="4" required></textarea></label>
     <label>Add photos <input id="event-files" type="file" accept="image/*" multiple></label>
     <ul id="event-photo-list"></ul>
@@ -778,6 +781,11 @@ const eventDatabase = classInvite ? new Promise((resolve,reject) => {
 
 function displayEvent(entry, data) {
   entry.querySelector('h3').textContent = data.title;
+  if (data.date) {
+    const time = entry.querySelector('time');
+    time.dateTime = data.date;
+    time.textContent = new Intl.DateTimeFormat('en',{dateStyle:'long',timeZone:'UTC'}).format(new Date(data.date));
+  }
   const story = entry.querySelector('.event-copy');
   story.querySelectorAll('p').forEach(paragraph => paragraph.remove());
   data.story.split(/\n+/).filter(Boolean).forEach(paragraph => story.append(make('p',paragraph)));
@@ -816,8 +824,9 @@ function showDraftPhotos() {
   });
 }
 
-for (const entry of document.querySelectorAll('[data-event]')) {
+function registerEvent(entry) {
   const eventId = entry.dataset.event;
+  const customEvent = eventId.startsWith('event-');
   let current = {
     revision:null,
     title:entry.querySelector('h3').textContent,
@@ -842,6 +851,7 @@ for (const entry of document.querySelectorAll('[data-event]')) {
       .catch(() => null);
   Promise.all([eventDatabase,readPublishedEvent()]).then(([database,published]) => {
     if (published && typeof published.revision === 'string' && Array.isArray(published.photos)) {
+      entry.hidden = false;
       current = published;
       displayEvent(entry,current);
     }
@@ -857,9 +867,11 @@ for (const entry of document.querySelectorAll('[data-event]')) {
       olderDraft = Boolean(saved && !saved.submittedRevision &&
         (saved.revision ?? null) !== current.revision);
       if (waitingForDeployment) {
+        entry.hidden = false;
         displayEvent(entry,saved);
         current = {...saved,revision:saved.submittedRevision,photos:saved.publishedPhotos};
       } else if (saved && !saved.submittedRevision && !olderDraft) {
+        entry.hidden = false;
         saveStatus.textContent = 'Unpublished changes are saved here. Open Edit event and save again to publish.';
         current = {
           revision:null,
@@ -901,6 +913,9 @@ for (const entry of document.querySelectorAll('[data-event]')) {
     }};
     byId('event-title-input').value = current.title;
     byId('event-story-input').value = current.story;
+    byId('event-date-field').hidden = !customEvent;
+    byId('event-date-input').required = customEvent;
+    byId('event-date-input').value = current.date || '';
     eventFiles.value = '';
     eventSave.textContent = 'Save changes';
     eventStatus.textContent = olderDraft
@@ -908,7 +923,7 @@ for (const entry of document.querySelectorAll('[data-event]')) {
       : 'Saving publishes this event and its photos to the public atlas.';
     showDraftPhotos();
     editorTrigger = edit;
-    if (inlineEditor.matches) {
+    if (inlineEditor.matches && !entry.hidden) {
       edit.after(eventEditor);
       eventEditor.classList.add('inline-editor');
       eventEditor.show();
@@ -917,6 +932,55 @@ for (const entry of document.querySelectorAll('[data-event]')) {
       eventEditor.showModal();
     }
   };
+  return edit;
+}
+document.querySelectorAll('[data-event]').forEach(registerEvent);
+
+function addEventCard(id, hidden = false) {
+  if (document.querySelector('[data-event="' + id + '"]')) return;
+  const entry = make('article','','event-entry event-story');
+  entry.dataset.event = id;
+  entry.hidden = hidden;
+  const disclosure = make('details','','event-disclosure');
+  const summary = make('summary','');
+  const date = make('div','','event-date');
+  date.append(make('time',''));
+  summary.append(make('h3',''),date);
+  const body = make('div','','event-body');
+  body.append(make('div','','event-copy'),make('div','','event-gallery'));
+  disclosure.append(summary,body);
+  entry.append(disclosure);
+  document.querySelector('.events-footer').before(entry);
+  return registerEvent(entry);
+}
+const customEventPattern = /^event-[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/;
+async function loadEventCatalog() {
+  try {
+    const response = await fetch(new URL('events/catalog.json',location.href),{cache:'no-cache'});
+    if (!response.ok) return;
+    const ids = await response.json();
+    if (Array.isArray(ids)) ids.filter(id => typeof id === 'string' && customEventPattern.test(id)).forEach(id => addEventCard(id,true));
+  } catch {}
+}
+if (location.protocol !== 'file:') {
+  loadEventCatalog();
+  document.addEventListener('visibilitychange',() => {
+    if (!document.hidden) loadEventCatalog();
+  });
+}
+if (classInvite) {
+  const add = byId('add-event');
+  add.hidden = false;
+  add.onclick = () => {
+    if (eventEditor.open) return;
+    addEventCard('event-' + crypto.randomUUID(),true).onclick();
+  };
+  eventDatabase.then(database => {
+    if (!database) return;
+    const keys = database.transaction('events').objectStore('events').getAllKeys();
+    keys.onsuccess = () => keys.result.filter(id => typeof id === 'string' && customEventPattern.test(id))
+      .forEach(id => addEventCard(id,true));
+  });
 }
 eventFiles.onchange = () => {
   for (const file of eventFiles.files) {
@@ -961,6 +1025,7 @@ eventForm.onsubmit = async event => {
     return;
   }
   const data = {title,story,revision:eventDraft.revision ?? null,photos:[...eventDraft.photos]};
+  if (editedEvent.eventId.startsWith('event-')) data.date = byId('event-date-input').value;
   const target = editedEvent;
   const {entry,eventId,edit,saveStatus} = target;
   savingEvent = eventSave.disabled = eventCancel.disabled = true;
@@ -975,6 +1040,8 @@ eventForm.onsubmit = async event => {
       transaction.objectStore('events').put(data,eventId);
     });
     target.update(data);
+    if (entry.hidden) entry.querySelector('details').open = true;
+    entry.hidden = false;
     displayEvent(entry,data);
     eventEditor.close();
   } catch (error) {
