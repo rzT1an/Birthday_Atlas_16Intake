@@ -116,7 +116,13 @@ header .eyebrow{font-size:clamp(12px,1.3vw,15px)}
 #event-access form{display:flex;flex-wrap:wrap;gap:10px;align-items:end}
 #event-access label{display:grid;gap:6px;flex:1 1 240px}
 #event-access input{width:100%;padding:10px;font:inherit;border:1px solid #b9c9db;border-radius:8px}
-.events-view-link{display:inline-block;margin-top:16px}
+.events-heading{margin:0 0 20px}
+.events-heading p{margin:4px 0 0;color:#536279}
+.events-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px 24px;margin-top:22px;padding-top:16px;border-top:1px solid #e1e6ed}
+.events-footer .events-closing{margin:0;max-width:64ch}
+.events-view-link,.events-view-link:visited{display:inline-flex;align-items:center;min-height:44px;padding:8px 12px;border-radius:10px;background:#edf3ff;color:#124a9c;font-size:.9em;font-weight:600;text-decoration:none}
+.events-view-link:hover{background:#dce9ff}
+.events-view-link:focus-visible{outline:2px solid #1764c2;outline-offset:2px}
 .events-back{margin-bottom:8px}
 .event-entry{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center;border-top:1px solid #e1e6ed;padding-top:18px}
 .event-entry h3{margin:6px 0;font-size:22px}.event-entry p{margin:0}
@@ -159,7 +165,7 @@ main{position:relative;z-index:2}
 .event-disclosure[open] summary::after{transform:rotate(180deg)}
 .event-disclosure h3{margin:0}
 .event-body{display:grid;gap:14px;margin-top:12px}
-.events-closing{margin:22px 0 0;padding-top:16px;border-top:1px solid #e1e6ed;font-size:14px}
+.events-closing{font-size:14px}
 .year-heading{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 16px}
 #download-birthdays{font-size:13px}
 .calendar-subscribe{position:relative;z-index:5;font-size:13px}
@@ -229,12 +235,14 @@ main{position:relative;z-index:2}
     <button type="submit">Open editor</button>
   </form>
   <p id="event-access-status" role="status"></p>
-  <a href="./#events">View published events</a>
+  <a class="events-view-link" href="?view=events">View published events →</a>
 </section>
 <section id="events" class="card" aria-labelledby="events-title">
   <button class="events-back" id="events-back-year">← Back to year</button>
-  <h2 id="events-title">Events</h2>
-  <p>Birthday moments we shared.</p>
+  <div class="events-heading">
+    <h2 id="events-title">Events</h2>
+    <p>Birthday moments we shared.</p>
+  </div>
   <article class="event-entry event-story" data-event="robert">
     <details class="event-disclosure">
       <summary><h3>Robert's birthday party</h3><div class="event-date"><time datetime="10-23">October 23</time> · Our first birthday celebration</div></summary>
@@ -265,9 +273,11 @@ main{position:relative;z-index:2}
     </details>
   </article>
   <!-- Add new birthday events above this closing note. -->
-  <p class='events-closing'>There are plenty more birthdays to celebrate together. We’ll keep adding our favourite moments here, so stay tuned!</p>
-  <a id="events-edit-link" class="events-view-link" href="?view=edit">Edit events with a class invitation →</a>
-  <a id="events-public-link" class="events-view-link" href="./#events" hidden>View published events →</a>
+  <div class="events-footer">
+    <p class="events-closing">There are plenty more birthdays to celebrate together. We’ll keep adding our favourite moments here, so stay tuned!</p>
+    <a id="events-edit-link" class="events-view-link" href="?view=edit">Edit events with a class invitation →</a>
+    <a id="events-public-link" class="events-view-link" href="?view=events" hidden>View published events →</a>
+  </div>
 </section>
 <dialog id="event-image-viewer" aria-label="Event photo"><button type="button" aria-label="Close photo">×</button><img alt=""></dialog>
 <dialog id="event-editor" aria-labelledby="event-editor-title">
@@ -682,12 +692,15 @@ if (invite) {
   viewUrl.hash = '';
   history.replaceState(history.state,'',viewUrl);
 }
-const editingView = viewUrl.searchParams.get('view') === 'edit';
+const view = viewUrl.searchParams.get('view');
+const editingView = view === 'edit';
 const classInvite = editingView ? sessionStorage.getItem(inviteStorageKey) || '' : '';
-if (editingView) {
+if (editingView || view === 'events') {
   byId('overview').hidden = true;
   byId('calendar').hidden = true;
   byId('events-back-year').hidden = true;
+}
+if (editingView) {
   byId('events-edit-link').hidden = true;
   byId('events-public-link').hidden = false;
   document.querySelector('.events-closing').hidden = true;
