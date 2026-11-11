@@ -807,7 +807,7 @@ function birthdayCalendar() {
   return [...lines,'END:VCALENDAR',''].join('\r\n');
 }
 if (location.protocol === 'https:' && !['localhost','127.0.0.1','[::1]'].includes(location.hostname)) {
-  const feedUrl = new URL('birthday-atlas.ics',location.href);
+  const feedUrl = new URL('cartography-16th-birthdays.ics',location.href);
   byId('subscribe-apple').href = feedUrl.href.replace(/^https:/,'webcal:');
   byId('birthday-feed-url').value = feedUrl.href;
   byId('calendar-providers').hidden = false;
