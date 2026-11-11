@@ -1,0 +1,35 @@
+name: Publish Birthday Atlas
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: birthday-atlas-pages
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Prepare website
+        run: |
+          mkdir _site
+          cp -R index.html cartography-16th-birthdays.ics intake-photo.jpg assets events _site/
+      - uses: actions/upload-pages-artifact@v4
+  deploy:
+    needs: package
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/deploy-pages@v4
+        id: deployment
