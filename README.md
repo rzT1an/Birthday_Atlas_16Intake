@@ -1,18 +1,22 @@
-# Birthday Atlas
+<p align="center">
+  <a href="https://cartographymaster.eu/"><img src="https://cartographymaster.eu/wp-content/uploads/2017/04/carto-c.png" width="60" alt="Cartography programme"></a>
+</p>
 
-A little birthday map for our Cartography 16th Intake crew.
+<h1 align="center">Birthday Atlas</h1>
+<p align="center">Cartography · 16th Intake</p>
+<p align="center"><a href="https://rzt1an.github.io/Birthday-Atlas---16th-intake/"><strong>Open the atlas ↗</strong></a></p>
 
-[Open Birthday Atlas](https://rzt1an.github.io/Birthday-Atlas---16th-intake/)
+![Cartography 16th Intake group photo](intake-photo.jpg)
 
-Pick a month, then select a birthday to find that classmate on the group photo and see their hometown on the map. Visit Events for stories and photos from birthdays we have celebrated together.
+We make maps. We also make time for cake.
 
-Use **Add birthdays to my calendar** to subscribe or download an iCalendar file. Birthdays repeat every year. Event edits made on the site are saved in that browser.
+Pick a birthday to find a familiar face in the group photo and see where they call home. Head to **Events** for the stories we’ve collected along the way, from sparklers to some very creative candle maths.
 
-## Project files
+Want a reminder before the next slice? Use **Add birthdays to my calendar** on the site. Birthdays repeat every year.
 
-- `index.html` contains the website, birthday data, and event stories.
-- `intake-photo.jpg` is the class photo.
-- `events/` holds celebration photos in a folder for each person.
-- `cartography-16th-birthdays.ics` is the shared subscription. Update it alongside the birthday data in `index.html`.
+<details>
+<summary>Adding to the atlas</summary>
 
-To add a celebration, put the photos in `events/<name>/` and add the story and photo links to the Events section in `index.html`.
+Add new celebration photos to `events/<name>/` and link them from the Events section in `index.html`. Edits made in the website editor are saved in that browser. If you change a birthday, update both `index.html` and `cartography-16th-birthdays.ics`.
+
+</details>
