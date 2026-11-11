@@ -1,19 +1,18 @@
 <p>
-  <a href="https://cartographymaster.eu/"><img src="https://cartographymaster.eu/wp-content/uploads/2017/04/carto-c.png" width="52" align="left" alt="Cartography programme"></a>
-  THINKING<br>
-  <em>doing</em><br>
-  SHOWING
+  <a href="https://cartographymaster.eu/"><img src="https://cartographymaster.eu/wp-content/uploads/2017/04/carto-c.png" width="42" align="middle" alt="Cartography programme"></a>&nbsp; Thinking · Doing · Showing
 </p>
 
 # Birthday Atlas
 
-We’re the 16th intake of Cartography. We made this to keep track of each other’s birthdays and save a few photos from the ones we’ve celebrated together.
-
-[Open the atlas](https://rzt1an.github.io/Birthday-Atlas---16th-intake/)
+Cartography · 16th Intake · [Open the atlas](https://rzt1an.github.io/Birthday-Atlas---16th-intake/)
 
 ![Cartography 16th Intake group photo](intake-photo.jpg)
 
-Pick a month to see whose birthday is coming up, or open **Events** to look back at the parties. You can also add the birthdays to your own calendar from the homepage.
+We make maps. We also make time for cake.
+
+Pick a birthday to find a familiar face in the group photo and see where they call home. Head to **Events** for the stories we’ve collected along the way, from sparklers to some very creative candle maths.
+
+Want a reminder before the next slice? Use **Add birthdays to my calendar** on the site. Birthdays repeat every year.
 
 <details>
 <summary>Adding to the atlas</summary>
