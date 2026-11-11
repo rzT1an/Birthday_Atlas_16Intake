@@ -183,6 +183,8 @@ main{position:relative;z-index:2}
 #event-form input,#event-form textarea{padding:10px;border:1px solid #cedbe8;border-radius:9px;background:#fff;color:#233e57;font-size:16px;font-weight:400}
 #event-form input::file-selector-button{border:0;border-radius:6px;padding:6px 8px;background:#e8f0f8;color:#254968;font:inherit;font-size:13px}
 #event-edit-status{font-size:12px;color:#4e647b}
+.event-save-status{font-size:13px;color:#4e647b}
+.event-save-status:empty{display:none}
 #event-save{background:#254968;color:white}
 #event-save:hover{background:#315d84}
 @media(max-width:640px){.calendar-subscribe{width:100%}.calendar-subscribe summary{width:fit-content}.calendar-subscribe-options{width:min(350px,100%)}}
@@ -704,7 +706,8 @@ function displayEvent(entry, data) {
   gallery.replaceChildren();
   for (const photo of data.photos) {
     const link = make('a','');
-    link.href = photo.file ? URL.createObjectURL(photo.file) : photo.src;
+    const preview = photo.file || photo.previewFile;
+    link.href = preview ? URL.createObjectURL(preview) : photo.src;
     const image = make('img','');
     image.src = link.getAttribute('href');
     image.alt = photo.alt;
@@ -747,8 +750,10 @@ for (const entry of document.querySelectorAll('[data-event]')) {
   }));
   let olderDraft = false;
   const edit = make('button','Edit event','event-edit');
+  const saveStatus = make('p','','event-save-status');
+  saveStatus.setAttribute('role','status');
   edit.disabled = true;
-  entry.querySelector('.event-body').append(edit);
+  entry.querySelector('.event-body').append(edit,saveStatus);
   const publishedEvent = location.protocol === 'file:' ? Promise.resolve(null) :
     fetch(new URL('events/' + eventId + '/event.json', location.href), {cache:'no-cache'})
       .then(response => response.ok ? response.json() : null)
@@ -764,9 +769,15 @@ for (const entry of document.querySelectorAll('[data-event]')) {
     }
     const request = database.transaction('events').objectStore('events').get(eventId);
     request.onsuccess = () => {
-      olderDraft = Boolean(classInvite && request.result &&
-        (request.result.revision ?? null) !== current.revision);
-      if (request.result && !olderDraft) {
+      const saved = request.result;
+      const waitingForDeployment = saved?.submittedRevision &&
+        (!published || current.revision === saved.revision);
+      olderDraft = Boolean(classInvite && saved && !saved.submittedRevision &&
+        (saved.revision ?? null) !== current.revision);
+      if (waitingForDeployment) {
+        displayEvent(entry,saved);
+        current = {...saved,revision:saved.submittedRevision,photos:saved.publishedPhotos};
+      } else if (saved && !saved.submittedRevision && !olderDraft) {
         current = {
           revision:null,
           ...request.result,
@@ -791,14 +802,14 @@ for (const entry of document.querySelectorAll('[data-event]')) {
   edit.onclick = () => {
     if (eventEditor.open) return;
     eventDraft = {...current,photos:[...current.photos]};
-    editedEvent = {entry,eventId,update:data => {
+    editedEvent = {entry,eventId,edit,saveStatus,update:data => {
       current = data;
       olderDraft = false;
     }};
     byId('event-title-input').value = current.title;
     byId('event-story-input').value = current.story;
     eventFiles.value = '';
-    eventSave.textContent = classInvite ? 'Save changes' : 'Save draft';
+    eventSave.textContent = 'Save changes';
     eventStatus.textContent = olderDraft
       ? 'An older draft is saved in this browser. This editor shows the latest published version.'
       : classInvite
@@ -837,7 +848,8 @@ async function publishSharedEvent(eventId, data) {
     return {src:photo.src,alt:photo.alt};
   })}));
   const response = await fetch(new URL('events/' + eventId,sharedEventsEndpoint + '/'), {
-    method:'POST',headers:{Authorization:'Bearer ' + classInvite},body:form
+    method:'POST',headers:{Authorization:'Bearer ' + classInvite},body:form,
+    signal:AbortSignal.timeout(30000)
   });
   const result = await response.json();
   if (!response.ok) throw new Error(result.error || 'Could not publish this event.');
@@ -853,34 +865,48 @@ eventForm.onsubmit = async event => {
     return;
   }
   const data = {title,story,revision:eventDraft.revision ?? null,photos:[...eventDraft.photos]};
+  const target = editedEvent;
+  const {entry,eventId,edit,saveStatus} = target;
   savingEvent = eventSave.disabled = eventCancel.disabled = true;
+  let database;
   try {
-    const database = await eventDatabase;
+    database = await eventDatabase;
     if (!database) throw new Error('Could not save a draft in this browser.');
     await new Promise((resolve,reject) => {
       const transaction = database.transaction('events','readwrite');
       transaction.oncomplete = resolve;
       transaction.onabort = () => reject(transaction.error);
-      transaction.objectStore('events').put(data,editedEvent.eventId);
+      transaction.objectStore('events').put(data,eventId);
     });
-    editedEvent.update(data);
-    displayEvent(editedEvent.entry,data);
-    if (!classInvite) {
-      eventEditor.close();
-      return;
-    }
-    eventStatus.textContent = 'Submitting changes to GitHub…';
-    const result = await publishSharedEvent(editedEvent.eventId,data);
-    editedEvent.update(result.event);
-    displayEvent(editedEvent.entry,result.event);
-    eventDraft = {...eventDraft,revision:result.event.revision,photos:result.event.photos};
-    const transaction = database.transaction('events','readwrite');
-    transaction.objectStore('events').delete(editedEvent.eventId);
-    eventStatus.textContent = 'Saved to GitHub. The public site will update after deployment.';
+    target.update(data);
+    displayEvent(entry,data);
+    eventEditor.close();
   } catch (error) {
     eventStatus.textContent = error.message || 'Could not save these changes.';
+    return;
   } finally {
     savingEvent = eventSave.disabled = eventCancel.disabled = false;
+  }
+  saveStatus.textContent = classInvite ? 'Saved here. Syncing…' : 'Saved in this browser.';
+  if (!classInvite) return;
+
+  edit.disabled = true;
+  try {
+    const {event:published} = await publishSharedEvent(eventId,data);
+    const publishedPhotos = published.photos.map((photo,index) => ({
+      ...photo,previewFile:data.photos[index].file || data.photos[index].previewFile
+    }));
+    target.update({...published,photos:publishedPhotos});
+    const transaction = database.transaction('events','readwrite');
+    transaction.objectStore('events').put({
+      ...data,submittedRevision:published.revision,publishedPhotos
+    },eventId);
+    saveStatus.textContent = 'Saved to GitHub. The public page will update shortly.';
+  } catch (error) {
+    saveStatus.textContent = 'Saved here. Sync failed. ' +
+      (error.message || 'Open Edit event to try again.');
+  } finally {
+    edit.disabled = false;
   }
 };
 function birthdayCalendar() {
