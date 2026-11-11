@@ -185,6 +185,7 @@ main{position:relative;z-index:2}
 #event-save{background:#254968;color:white}
 #event-save:hover{background:#315d84}
 @media(max-width:640px){.calendar-subscribe{width:100%}.calendar-subscribe summary{width:fit-content}.calendar-subscribe-options{width:min(350px,100%)}}
+.calendar-provider{border-bottom:1px solid #dce6ef;padding-bottom:6px}.calendar-provider a{border:0}.calendar-provider p{margin:0 10px 4px}
 </style>
 <div id="atlas-backdrop" aria-hidden="true"></div>
 <main>
@@ -194,9 +195,7 @@ main{position:relative;z-index:2}
   <div class="calendar-subscribe-options">
     <div id="calendar-providers" hidden>
       <a id="subscribe-apple">Apple Calendar</a>
-      <a href="https://calendar.google.com/calendar/u/0/r/settings/addbyurl" target="_blank" rel="noopener">Google Calendar ↗</a>
-      <a href="https://outlook.live.com/calendar/" target="_blank" rel="noopener">Outlook Calendar ↗</a>
-      <p>For Google, use <strong>From URL</strong>. For Outlook, choose <strong>Add calendar → Subscribe from web</strong>.</p>
+      <div class="calendar-provider"><a href="https://calendar.google.com/calendar/u/0/r/settings/addbyurl" target="_blank" rel="noopener">Google Calendar ↗</a><p>Choose <strong>From URL</strong>, then paste the subscription link.</p></div><div class="calendar-provider"><a href="https://outlook.live.com/calendar/" target="_blank" rel="noopener">Outlook Calendar ↗</a><p>Choose <strong>Add calendar → Subscribe from web</strong>, then paste the subscription link.</p></div>
       <label for="birthday-feed-url">Subscription URL</label>
       <input id="birthday-feed-url" type="url" readonly>
       <button id="copy-birthday-feed" type="button">Copy link</button>
@@ -801,6 +800,7 @@ document.addEventListener('keydown', event => {
 });
 </script>
 </html>
+
 
 
 
