@@ -259,8 +259,8 @@ main{position:relative;z-index:2}
     <label>Story <textarea id="event-story-input" rows="4" required></textarea></label>
     <label>Add photos <input id="event-files" type="file" accept="image/*" multiple></label>
     <ul id="event-photo-list"></ul>
-    <p id="event-edit-status" role="status">Save changes keeps a draft in this browser. Download a publish file to share this event on GitHub.</p>
-    <div class="event-editor-actions"><button type="button" id="event-cancel">Cancel</button><button type="submit" id="event-export" hidden>Download publish file</button><button type="submit" id="event-save">Save changes</button></div>
+    <p id="event-edit-status" role="status">Use the class invitation to publish changes online.</p>
+    <div class="event-editor-actions"><button type="button" id="event-cancel">Cancel</button><button type="submit" id="event-save">Save changes</button></div>
   </form>
 </dialog>
 </main>
@@ -652,7 +652,6 @@ const eventForm = byId('event-form');
 const eventFiles = byId('event-files');
 const eventStatus = byId('event-edit-status');
 const eventSave = byId('event-save');
-const eventExport = byId('event-export');
 // Set to the deployed HTTPS Worker URL to enable class publishing.
 const sharedEventsEndpoint = 'https://birthday-atlas-events.rz-tian.workers.dev';
 const inviteStorageKey = 'birthday-atlas-class-invite';
@@ -665,7 +664,6 @@ if (sharedEventsEndpoint) {
   }
   classInvite = sessionStorage.getItem(inviteStorageKey) || '';
 }
-eventExport.hidden = location.protocol !== 'https:' && location.protocol !== 'http:';
 const eventCancel = byId('event-cancel');
 let eventDraft;
 let editedEvent;
@@ -795,7 +793,6 @@ for (const entry of document.querySelectorAll('[data-event]')) {
     byId('event-story-input').value = current.story;
     eventFiles.value = '';
     eventSave.textContent = classInvite ? 'Save changes' : 'Save draft';
-    eventExport.hidden = Boolean(classInvite) || !/^https?:$/.test(location.protocol);
     eventStatus.textContent = classInvite
       ? 'Saving publishes this event and its photos to the public atlas.'
       : 'Drafts stay in this browser. Use the class invitation to publish online.';
@@ -822,33 +819,6 @@ eventCancel.onclick = () => eventEditor.close();
 eventEditor.addEventListener('cancel',event => {
   if (savingEvent) event.preventDefault();
 });
-async function downloadPublishedEvent(eventId, data) {
-  const pageUrl = new URL('index.html', location.href);
-  const response = await fetch(pageUrl, {cache:'no-store'});
-  if (!response.ok) throw new Error('Could not load the published page.');
-  const page = new DOMParser().parseFromString(await response.text(), 'text/html');
-  const entry = [...page.querySelectorAll('[data-event]')].find(item => item.dataset.event === eventId);
-  if (!entry) throw new Error('This event no longer exists on the published page.');
-  const photos = await Promise.all(data.photos.map(photo => {
-    if (!photo.file) return photo;
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve({src:reader.result, alt:photo.alt});
-      reader.onerror = () => reject(new Error('Could not read an added photo.'));
-      reader.readAsDataURL(photo.file);
-    });
-  }));
-  displayEvent(entry, {...data, photos});
-  const file = new Blob(['<!doctype html>\n', page.documentElement.outerHTML], {type:'text/html;charset=utf-8'});
-  if (file.size > 25 * 1024 * 1024) throw new Error('The file is too large for GitHub web upload. Try smaller photos.');
-  const link = make('a','');
-  const url = URL.createObjectURL(file);
-  link.href = url;
-  link.download = 'index.html';
-  link.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
-
 async function publishSharedEvent(eventId, data) {
   const form = new FormData();
   form.set('event',JSON.stringify({...data,photos:data.photos.map((photo,index) => {
@@ -875,13 +845,8 @@ eventForm.onsubmit = async event => {
     return;
   }
   const data = {title,story,revision:eventDraft.revision ?? null,photos:[...eventDraft.photos]};
-  savingEvent = eventSave.disabled = eventExport.disabled = eventCancel.disabled = true;
+  savingEvent = eventSave.disabled = eventCancel.disabled = true;
   try {
-    if (event.submitter === eventExport) {
-      await downloadPublishedEvent(editedEvent.eventId, data);
-      eventStatus.textContent = 'Upload index.html to the root of the GitHub repository and commit it to publish this event.';
-      return;
-    }
     const database = await eventDatabase;
     if (!database) throw new Error('Could not save a draft in this browser.');
     await new Promise((resolve,reject) => {
@@ -906,7 +871,7 @@ eventForm.onsubmit = async event => {
   } catch (error) {
     eventStatus.textContent = error.message || 'Could not save these changes.';
   } finally {
-    savingEvent = eventSave.disabled = eventExport.disabled = eventCancel.disabled = false;
+    savingEvent = eventSave.disabled = eventCancel.disabled = false;
   }
 };
 function birthdayCalendar() {
