@@ -1,15 +1,11 @@
 {
-  "revision": "432cd2f7-1e8d-473e-a17d-e77c7cb29d1e",
+  "revision": "292f89f2-6e51-46fe-ad7e-ad0d3efb8180",
   "title": "Robert's birthday party",
   "story": "We started at Robert’s place, where he had wine, soft drinks, water, and plenty of snacks for everyone.\n\nOn our way to the first bar, Robert lit a sparkler and we sang “Happy Birthday” to him in different languages. That’s the moment in the photo, and one of the funniest parts of the night. We played billiards at the first bar, then carried on to a second one.",
   "photos": [
     {
       "src": "events/robert/celebration.jpg",
       "alt": "Robert holding a sparkler on Schellingstraße"
-    },
-    {
-      "src": "events/robert/fecc2bf6-f38f-4667-9d88-746c072810a3.jpg",
-      "alt": "Billiards at the first bar"
     }
   ]
 }
