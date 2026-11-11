@@ -120,6 +120,7 @@ header .eyebrow{font-size:clamp(12px,1.3vw,15px)}
 #add-event{margin:10px 0 0}
 .events-heading p{margin:4px 0 0;color:#536279}
 .events-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px 24px;margin-top:22px;padding-top:16px;border-top:1px solid #e1e6ed}
+.events-footer:not(:has(> :not([hidden]))){display:none}
 .events-footer .events-closing{margin:0;max-width:64ch}
 .events-view-link,.events-view-link:visited{display:inline-flex;align-items:center;min-height:44px;padding:8px 12px;border-radius:10px;background:#edf3ff;color:#124a9c;font-size:.9em;font-weight:600;text-decoration:none}
 .events-view-link:hover{background:#dce9ff}
@@ -246,7 +247,7 @@ main{position:relative;z-index:2}
   <div class="events-heading">
     <h2 id="events-title">Events</h2>
     <button type="button" id="add-event" hidden>+ Add event</button>
-    <p>Birthday moments we shared.</p>
+    <p id="events-intro">Birthday moments we shared. Stay tuned!</p>
   </div>
   <article class="event-entry event-story" data-event="robert">
     <details class="event-disclosure">
@@ -279,7 +280,6 @@ main{position:relative;z-index:2}
   </article>
   <!-- Add new birthday events above this closing note. -->
   <div class="events-footer">
-    <p class="events-closing">There are plenty more birthdays to celebrate together. We’ll keep adding our favourite moments here, so stay tuned!</p>
     <p id="events-publish-note" class="events-closing" hidden>After saving, changes may take a minute or two to appear on the public site.</p>
     <a id="events-edit-link" class="events-view-link" href="?view=edit">Edit events with a class invitation →</a>
     <a id="events-public-link" class="events-view-link" href="?view=events" target="_blank" rel="noopener" hidden>View published events ↗</a>
@@ -711,7 +711,7 @@ if (editingView || view === 'events') {
 if (editingView) {
   byId('events-public-link').hidden = false;
   byId('events-publish-note').hidden = false;
-  document.querySelector('.events-closing').hidden = true;
+  byId('events-intro').textContent = 'Birthday moments we shared.';
   byId('events').hidden = !classInvite;
   byId('event-access').hidden = Boolean(classInvite);
   if (classInvite) byId('events-title').textContent = 'Edit events';
@@ -779,12 +779,25 @@ const eventDatabase = classInvite ? new Promise((resolve,reject) => {
   request.onerror = () => reject(request.error);
 }).catch(() => null) : Promise.resolve(null);
 
+function sortEventsByDate() {
+  const footer = document.querySelector('.events-footer');
+  const dateOf = entry => entry.querySelector('time').dateTime;
+  const entries = [...document.querySelectorAll('#events > [data-event]')];
+  entries.sort((left,right) => dateOf(right).localeCompare(dateOf(left)));
+  let next = footer;
+  for (const entry of entries.reverse()) {
+    if (entry.nextElementSibling !== next) next.before(entry);
+    next = entry;
+  }
+}
+
 function displayEvent(entry, data) {
   entry.querySelector('h3').textContent = data.title;
   if (data.date) {
     const time = entry.querySelector('time');
     time.dateTime = data.date;
     time.textContent = new Intl.DateTimeFormat('en',{dateStyle:'long',timeZone:'UTC'}).format(new Date(data.date));
+    sortEventsByDate();
   }
   const story = entry.querySelector('.event-copy');
   story.querySelectorAll('p').forEach(paragraph => paragraph.remove());
@@ -934,6 +947,7 @@ function registerEvent(entry) {
   };
   return edit;
 }
+sortEventsByDate();
 document.querySelectorAll('[data-event]').forEach(registerEvent);
 
 function addEventCard(id, hidden = false) {
