@@ -2,7 +2,7 @@
 <html lang="en">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Birthday Atlas · Demo</title>
+<title>Birthday Atlas · Cartography 16th Intake</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400..700&amp;family=Source+Serif+4:wght@600&amp;display=swap">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Satisfy&amp;family=UnifrakturMaguntia&amp;display=swap">
 <style>
@@ -190,7 +190,7 @@ main{position:relative;z-index:2}
 </style>
 <div id="atlas-backdrop" aria-hidden="true"></div>
 <main>
-<div id="overview"><header><div class="eyebrow">Cartography · Mobile demo</div><h1>Birthday Atlas</h1></header>
+<div id="overview"><header><a class="eyebrow intake-brand" href="https://cartographymaster.eu/" aria-label="Cartography M.Sc. programme homepage"><img src="https://cartographymaster.eu/wp-content/uploads/2017/04/carto-c.png" width="46" height="46" alt="" referrerpolicy="no-referrer"><span class="carto-motto"><span>Thinking</span><em>doing</em><span>Showing</span></span><span class="brand-slash" aria-hidden="true"></span><span class="intake-text"><span class="intake-name">Cartography</span><span class="intake-number">16th Intake</span></span></a><h1>Birthday Atlas</h1></header>
 <section class="card" id="year-card" aria-labelledby="year-title"><div class="year-heading"><h2 id="year-title">The year at a glance</h2><details class="calendar-subscribe">
   <summary><span aria-hidden="true">＋</span> Add birthdays to my calendar</summary>
   <div class="calendar-subscribe-options">
@@ -207,7 +207,7 @@ main{position:relative;z-index:2}
   </div>
 </details></div><div class="year-meta"><p>Select a month to open its calendar.</p><span class="birthday-key"><span>● Past</span><span>○ Upcoming</span><span>◆ Today</span></span></div><div class="year-view" role="region" aria-label="January through December birthday timeline"><div class="timeline" id="timeline"></div></div></section>
 </div><section class="card" id="calendar" hidden aria-labelledby="month-title"><button id="back-year">← Back to year</button><div class="bar"><h2 id="month-title" tabindex="-1"></h2><div class="month-actions"><div id="map-popup" hidden><button id="close-popup">Show all birthdays</button></div><div class="nav"><button id="prev" aria-label="Previous month">←</button><button id="next" aria-label="Next month">→</button></div></div></div><div class="month-layout"><div><div class="grid" id="grid"></div><p id="empty" hidden>No birthdays listed this month.</p></div>
-<div class="map-panel" id="map-card"><figure class="class-photo" id="photo-pane"><div id="photo-stage"><div class="event-photo-placeholder">Class photo area</div></div></figure><details id="map-pane"><summary><span aria-hidden="true">⌖</span> <span id="map-location">Where in the world?</span></summary>
+<div class="map-panel" id="map-card"><figure class="class-photo" id="photo-pane"><div id="photo-stage"><img src="intake-photo.jpg" alt="Cartography 16th Intake group photo"></div></figure><details id="map-pane"><summary><span aria-hidden="true">⌖</span> <span id="map-location">Where in the world?</span></summary>
 <div id="map-viewport" tabindex="0" aria-label="Birthday map, scroll to pan when zoomed"><div class="map" id="map">
 <svg id="land" viewBox="0 0 360 180" aria-hidden="true"></svg>
 
@@ -217,15 +217,35 @@ main{position:relative;z-index:2}
   <button class="events-back" id="events-back-year">← Back to year</button>
   <h2 id="events-title">Events</h2>
   <p>Birthday moments we shared.</p>
-  
-  
-  <article class="event-entry event-story" data-event="demo">
+  <article class="event-entry event-story" data-event="robert">
     <details class="event-disclosure">
-      <summary><h3>Avery's birthday party</h3><span class="event-date">January 14 · Demo event</span></summary>
-      <div class="event-body"><div class="event-copy"><p>We shared cake and played a few rounds of our favourite board game.</p></div>
-      <div class="event-gallery"></div></div>
+      <summary><h3>Robert's birthday party</h3><div class="event-date"><time datetime="10-23">October 23</time> · Our first birthday celebration</div></summary>
+      <div class="event-body"><div class="event-copy">
+      <p>We started at Robert’s place, where he had wine, soft drinks, water, and plenty of snacks for everyone.</p>
+      <p>On our way to the first bar, Robert lit a sparkler and we sang “Happy Birthday” to him in different languages. That’s the moment in the photo, and one of the funniest parts of the night. We played billiards at the first bar, then carried on to a second one.</p>
+    </div>
+    <div class="event-gallery">
+      <a href="robert-celebration.jpg"><img src="robert-celebration.jpg" alt="Robert holding a sparkler on Schellingstraße" loading="lazy"></a>
+    </div>
+  </div>
     </details>
   </article>
+  <article class="event-entry event-story" data-event="ivetta">
+    <details class="event-disclosure">
+      <summary><h3>A surprise for Ivetta</h3><div class="event-date"><time datetime="2026-11-10">November 10, 2026</time></div></summary>
+      <div class="event-body"><div class="event-copy">
+      <p>After our Geovisual Analytics exercise, we stayed behind to surprise Ivetta for her 27th birthday. Kylie had planned the surprise and set the scene with balloons, a birthday banner, and party blowers. Aundrea prepared the cake, and we all gathered around as Ivetta blew out the candles.</p>
+      <p>Tina couldn’t find a number 7 candle, so she used a 3 and a 4 instead. With all three candles lined up, it looked like Ivetta was turning 234. A little weird, sure. But we can do the math. 3 + 4 = 7. There we go. Happy 27th, Ivetta!</p>
+    </div>
+    <div class="event-gallery">
+      <a href="ivetta-surprise.jpg"><img src="ivetta-surprise.jpg" alt="The classroom surprise, with balloons and a birthday banner" loading="lazy"></a>
+      <a href="ivetta-candles.jpg"><img src="ivetta-candles.jpg" alt="Ivetta blowing out the birthday candles" loading="lazy"></a>
+      <a href="ivetta-cake.jpg"><img src="ivetta-cake.jpg" alt="Birthday cake with lit number candles 2, 3, and 4" loading="lazy"></a>
+    </div>
+  </div>
+    </details>
+  </article>
+  <!-- Add new birthday events above this closing note. -->
   <p class='events-closing'>There are plenty more birthdays to celebrate together. We’ll keep adding our favourite moments here, so stay tuned!</p>
 </section>
 <dialog id="event-image-viewer" aria-label="Event photo"><button type="button" aria-label="Close photo">×</button><img alt=""></dialog>
@@ -243,12 +263,25 @@ main{position:relative;z-index:2}
 </main>
 <script>
 const samples = [
-  {name:'Avery',month:0,day:14,city:{name:'Lisbon, Portugal',lon:-9.14,lat:38.72}},
-  {name:'Robin',month:2,day:8,city:{name:'Oslo, Norway',lon:10.75,lat:59.91}},
-  {name:'Morgan',month:5,day:18,city:{name:'Athens, Greece',lon:23.73,lat:37.98}},
-  {name:'Charlie',month:8,day:27,city:{name:'Helsinki, Finland',lon:24.94,lat:60.17}},
-  {name:'Sage',month:10,day:18,city:{name:'Dublin, Ireland',lon:-6.26,lat:53.35}},
-  {name:'Taylor',month:11,day:9,city:{name:'Copenhagen, Denmark',lon:12.57,lat:55.68}}
+  {name:'Flora',month:5,day:2,city:{name:'Lévignacq, Landes, Nouvelle-Aquitaine, France',lon:-1.16617,lat:44.0051}},
+  {name:'Bruce',month:0,day:11,city:{name:'Wuhan, Hubei, China',lon:114.31,lat:30.59}},
+  {name:'Keana',month:0,day:27,city:{name:'San Diego, California, USA',lon:-117.16,lat:32.72}},
+  {name:'Saoirse',month:2,day:10,city:{name:'Peterborough, Ontario, Canada',lon:-78.3197,lat:44.3091}},
+  {name:'Rail',month:2,day:17,city:{name:'Muslyumovo, Republic of Tatarstan, Russia',lon:53.1992,lat:55.3053}},
+  {name:'Aundrea',month:2,day:23,city:{name:'Santa Cruz, California, USA',lon:-122.03,lat:36.97}},
+  {name:'Kong',month:3,day:1,city:{name:'Chengdu, Sichuan, China',lon:104.07,lat:30.57}},
+  {name:'Runze',month:5,day:9,city:{name:'Baoji, Shaanxi, China',lon:107.24,lat:34.36}},
+  {name:'Nikola',month:6,day:30,city:{name:'Moscow, Russia',lon:37.62,lat:55.76}},
+  {name:'Jaime',month:7,day:19,city:{name:'Louisville, Kentucky, USA',lon:-85.7585,lat:38.2527}},
+  {name:'Jieun',month:8,day:12,city:{name:'Incheon, South Korea',lon:126.71,lat:37.46}},
+  {name:'Robert',month:9,day:23,city:{name:'Bonn, North Rhine-Westphalia, Germany',lon:7.10,lat:50.74}},
+  {name:'Juliane',month:9,day:24},
+  {name:'Ivetta',month:10,day:10,city:{name:'Yekaterinburg, Sverdlovsk Oblast, Russia',lon:60.60,lat:56.84}},
+  {name:'Tina',month:10,day:18,city:{name:'Appleton, Wisconsin, USA',lon:-88.4154,lat:44.2619}},
+  {name:'Paula',month:11,day:15,city:{name:'Madrid, Spain',lon:-3.70,lat:40.42}},
+  {name:'Kylie',month:11,day:19,city:{name:'Reno, Nevada, USA',lon:-119.8138,lat:39.5296}},
+  {name:'Sofia',month:11,day:5,city:{name:'Bogotá, D.C., Colombia',lon:-74.08083,lat:4.59889}},
+  {name:'Elsie',month:8,day:27,city:{name:'Fuzhou, Fujian, China',lon:119.30,lat:26.08}}
 ];
 const today = new Date();
 const year = today.getFullYear();
@@ -424,9 +457,15 @@ function stepMonth(step) {
 }
 byId('prev').onclick = () => stepMonth(-1);
 byId('next').onclick = () => stepMonth(1);
-const photoPositions = {};
-const longerPhotoArrows = new Set();
-const lowerPhotoAnchors = {};
+const photoPositions = {
+  Rail:[9,28], Jaime:[20,27], Bruce:[32,27], Runze:[38,28],
+  Tina:[43,27], Kylie:[49,30], Robert:[53,22], Jieun:[58,29],
+  Elsie:[64,21], Keana:[69,28], Flora:[75,19], Paula:[78,28],
+  Sofia:[82,18], Saoirse:[89,28], Kong:[31,43], Aundrea:[45,46],
+  Ivetta:[54,50], Nikola:[71,47]
+};
+const longerPhotoArrows = new Set(['Paula','Keana','Jieun','Kylie']);
+const lowerPhotoAnchors = {Saoirse:37,Aundrea:58,Kong:57,Nikola:58,Ivetta:62};
 const birthdaysToday = samples.filter(person =>
   person.month === today.getMonth() && person.day === today.getDate()
 );
@@ -682,6 +721,9 @@ for (const entry of document.querySelectorAll('[data-event]')) {
     request.onsuccess = () => {
       if (request.result) {
         current = request.result;
+        if (eventId === 'robert' && /^(Celebrating Robert|Robert[’']s birthday(?: party)?)$/.test(current.title)) {
+          current = {...current,title:"Robert's birthday party"};
+        }
         displayEvent(entry,current);
       }
       edit.disabled = false;
@@ -801,10 +843,6 @@ document.addEventListener('keydown', event => {
 });
 </script>
 </html>
-
-
-
-
 
 
 
