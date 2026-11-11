@@ -687,12 +687,12 @@ eventEditor.addEventListener('keydown', event => {
   }
 });
 
-const eventDatabase = new Promise((resolve,reject) => {
+const eventDatabase = classInvite ? new Promise((resolve,reject) => {
   const request = indexedDB.open('birthday-atlas-events',1);
   request.onupgradeneeded = () => request.result.createObjectStore('events');
   request.onsuccess = () => resolve(request.result);
   request.onerror = () => reject(request.error);
-}).catch(() => null);
+}).catch(() => null) : Promise.resolve(null);
 
 function displayEvent(entry, data) {
   entry.querySelector('h3').textContent = data.title;
@@ -753,7 +753,7 @@ for (const entry of document.querySelectorAll('[data-event]')) {
   const saveStatus = make('p','','event-save-status');
   saveStatus.setAttribute('role','status');
   edit.disabled = true;
-  entry.querySelector('.event-body').append(edit,saveStatus);
+  if (classInvite) entry.querySelector('.event-body').append(edit,saveStatus);
   const publishedEvent = location.protocol === 'file:' ? Promise.resolve(null) :
     fetch(new URL('events/' + eventId + '/event.json', location.href), {cache:'no-cache'})
       .then(response => response.ok ? response.json() : null)
@@ -772,7 +772,7 @@ for (const entry of document.querySelectorAll('[data-event]')) {
       const saved = request.result;
       const waitingForDeployment = saved?.submittedRevision &&
         (!published || current.revision === saved.revision);
-      olderDraft = Boolean(classInvite && saved && !saved.submittedRevision &&
+      olderDraft = Boolean(saved && !saved.submittedRevision &&
         (saved.revision ?? null) !== current.revision);
       if (waitingForDeployment) {
         displayEvent(entry,saved);
@@ -812,9 +812,7 @@ for (const entry of document.querySelectorAll('[data-event]')) {
     eventSave.textContent = 'Save changes';
     eventStatus.textContent = olderDraft
       ? 'An older draft is saved in this browser. This editor shows the latest published version.'
-      : classInvite
-      ? 'Saving publishes this event and its photos to the public atlas.'
-      : 'Drafts stay in this browser. Use the class invitation to publish online.';
+      : 'Saving publishes this event and its photos to the public atlas.';
     showDraftPhotos();
     editorTrigger = edit;
     if (inlineEditor.matches) {
@@ -858,6 +856,7 @@ async function publishSharedEvent(eventId, data) {
 
 eventForm.onsubmit = async event => {
   event.preventDefault();
+  if (!classInvite) return;
   const title = byId('event-title-input').value.trim();
   const story = byId('event-story-input').value.trim();
   if (!title || !story) {
@@ -887,8 +886,7 @@ eventForm.onsubmit = async event => {
   } finally {
     savingEvent = eventSave.disabled = eventCancel.disabled = false;
   }
-  saveStatus.textContent = classInvite ? 'Saved here. Syncing…' : 'Saved in this browser.';
-  if (!classInvite) return;
+  saveStatus.textContent = 'Saved here. Syncing…';
 
   edit.disabled = true;
   try {
