@@ -295,7 +295,7 @@ main{position:relative;z-index:2}
     <label>Add photos <input id="event-files" type="file" accept="image/*" multiple></label>
     <ul id="event-photo-list"></ul>
     <p id="event-edit-status" role="status">Use the class invitation to publish changes online.</p>
-    <div class="event-editor-actions"><button type="button" id="event-cancel">Cancel</button><button type="submit" id="event-save">Save changes</button></div>
+    <div class="event-editor-actions"><button type="button" id="event-delete" hidden>Delete event</button><button type="button" id="event-cancel">Cancel</button><button type="submit" id="event-save">Save changes</button></div>
   </form>
 </dialog>
 </main>
@@ -752,6 +752,7 @@ byId('event-access-form').onsubmit = async event => {
   }
 };
 const eventCancel = byId('event-cancel');
+const eventDelete = byId('event-delete');
 let eventDraft;
 let editedEvent;
 let savingEvent = false;
@@ -863,6 +864,7 @@ function registerEvent(entry) {
       .then(response => response.ok ? response.json() : null)
       .catch(() => null);
   Promise.all([eventDatabase,readPublishedEvent()]).then(([database,published]) => {
+    if (published?.deleted) { entry.hidden = true; return; }
     if (published && typeof published.revision === 'string' && Array.isArray(published.photos)) {
       entry.hidden = false;
       current = published;
@@ -875,6 +877,7 @@ function registerEvent(entry) {
     const request = database.transaction('events').objectStore('events').get(eventId);
     request.onsuccess = () => {
       const saved = request.result;
+      if (saved?.deleted) { entry.hidden = true; return; }
       const waitingForDeployment = saved?.submittedRevision &&
         (!published || current.revision === saved.revision);
       olderDraft = Boolean(saved && !saved.submittedRevision &&
@@ -911,6 +914,7 @@ function registerEvent(entry) {
     document.addEventListener('visibilitychange',async () => {
       if (document.hidden) return;
       const published = await readPublishedEvent();
+      if (published?.deleted) { entry.hidden = true; return; }
       if (published?.revision && published.revision !== current.revision && Array.isArray(published.photos)) {
         current = published;
         displayEvent(entry,current);
@@ -931,6 +935,7 @@ function registerEvent(entry) {
     byId('event-date-input').value = current.date || '';
     eventFiles.value = '';
     eventSave.textContent = 'Save changes';
+    eventDelete.hidden = entry.hidden;
     eventStatus.textContent = olderDraft
       ? 'An older draft is saved in this browser. This editor shows the latest published version.'
       : 'Saving publishes this event and its photos to the public atlas.';
@@ -1028,6 +1033,26 @@ async function publishSharedEvent(eventId, data) {
   if (!response.ok) throw new Error(result.error || 'Could not publish this event.');
   return result;
 }
+
+eventDelete.onclick = async () => {
+  if (!classInvite || savingEvent || !confirm('Remove this event from Birthday Atlas?')) return;
+  const {entry,eventId} = editedEvent;
+  savingEvent = eventDelete.disabled = eventSave.disabled = eventCancel.disabled = true;
+  eventStatus.textContent = 'Deleting…';
+  try {
+    const {event} = await publishSharedEvent(eventId,{
+      deleted:true,revision:eventDraft.revision ?? null,photos:[]
+    });
+    const database = await eventDatabase;
+    if (database) database.transaction('events','readwrite').objectStore('events').put(event,eventId);
+    eventEditor.close();
+    entry.hidden = true;
+  } catch (error) {
+    eventStatus.textContent = error.message || 'Could not delete this event.';
+  } finally {
+    savingEvent = eventDelete.disabled = eventSave.disabled = eventCancel.disabled = false;
+  }
+};
 
 eventForm.onsubmit = async event => {
   event.preventDefault();
