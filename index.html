@@ -1,0 +1,908 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Birthday Atlas · Demo</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400..700&amp;family=Source+Serif+4:wght@600&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Satisfy&amp;family=UnifrakturMaguntia&amp;display=swap">
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f5f5f7;color:#1d1d1f;font:16px system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}main{max-width:1200px;margin:auto;padding:clamp(18px,5vw,72px)}header{margin:28px 0 32px}.eyebrow{color:#595960;font-size:13px;font-weight:650;letter-spacing:.08em;text-transform:uppercase}h1{font-size:clamp(48px,8vw,86px);letter-spacing:-.065em;line-height:1;margin:12px 0}p{color:#595960;line-height:1.55}.card,dialog{background:white;border:0;border-radius:24px;padding:clamp(14px,3vw,32px);margin-bottom:22px;box-shadow:0 8px 32px #00000008}h2{margin:0;letter-spacing:-.035em;font-size:clamp(20px,4vw,32px)}button{font:inherit;cursor:pointer;border:0;background:#edf3ff;color:#124a9c;border-radius:10px;padding:8px 11px;transition:background .18s}button:hover{background:#dce9ff}button:focus-visible,.scroll:focus-visible{outline:2px solid #1764c2;outline-offset:2px}button[aria-expanded=true]{background:#1759ac;color:white}.scroll{overflow-x:auto;padding:8px 2px 12px}.timeline{display:grid;grid-template-columns:repeat(12,minmax(103px,1fr));min-width:1236px}.month{position:relative;height:143px;border-top:2px solid #c6d0de;margin-top:74px;border-left:1px solid #e5e8ee}.month>.month-button{position:absolute;top:13px;left:4px;font-size:12px;padding:7px 6px}.marker{position:absolute;top:0;transform:translateY(-50%);width:8px;height:8px;background:#1764c2;border-radius:50%}.marker button{position:absolute;bottom:15px;left:0;transform:translateX(-50%);white-space:nowrap;font-size:11px;padding:4px 6px}.marker:before{content:"";position:absolute;left:3px;bottom:6px;width:1px;height:var(--stem);background:#a8bddd}.bar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:18px}.nav{display:flex;gap:5px}.grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}.weekday{text-align:center;font-size:12px;color:#595960;padding-bottom:6px}.day{min-height:76px;background:#f5f5f7;border-radius:8px;padding:5px;font-size:12px;min-width:0}.blank{background:transparent}.day button{display:block;width:100%;margin-top:4px;text-align:left;padding:4px 2px;font-size:clamp(9px,1.6vw,13px);overflow-wrap:anywhere}dialog{max-width:calc(100% - 32px);width:360px;margin:auto}dialog::backdrop{background:#15182755}#calendar{scroll-margin:16px} [hidden]{display:none!important}@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+.map{position:relative;aspect-ratio:2/1;background:#f5f7fa;border-radius:16px;isolation:isolate}.map svg{width:100%;height:100%;display:block}.pin{position:absolute;transform:translate(-50%,-50%);width:26px;height:26px;padding:0;border-radius:50%;background:#1759ac;color:white;font-size:12px;border:2px solid white}.pin:hover,.pin.selected{background:#103a70;box-shadow:0 0 0 4px #1759ac40;z-index:1}
+.month-layout{display:grid;grid-template-columns:1fr 1fr;gap:24px}.map-panel h3{margin:0}.map-popup{position:absolute;z-index:2;top:var(--popup-top);left:var(--popup-left);transform:translateX(-50%);width:min(172px,48%);background:white;border-radius:12px;padding:8px;box-shadow:0 4px 18px #0002;font-size:12px}.map-popup img{width:100%;height:44px;object-fit:cover;border-radius:6px}.map-popup strong{display:block;margin:3px 0}.map-popup button{float:right;padding:2px 6px}.day button[aria-pressed=true]{background:#1759ac;color:white}@media(max-width:850px){.month-layout{grid-template-columns:1fr}}
+.year-view{padding:4px 0}.timeline{min-width:0;grid-template-columns:repeat(6,minmax(0,1fr));row-gap:12px}.month{height:48px;margin-top:110px}.month>.month-button{max-width:100%;left:0;white-space:normal;overflow-wrap:anywhere}.timeline-name{position:absolute;left:clamp(1px,calc(var(--date-position) - var(--label-width)/2),calc(100% - var(--label-width) - 1px));bottom:calc(100% + var(--label-height));width:var(--label-width);padding:4px 1px;font-size:11px;line-height:14px;overflow-wrap:anywhere;z-index:1}.month{--label-width:min(70px,calc(100% - 2px))}.marker{transform:translate(-50%,-50%)}@media(max-width:640px){.timeline{grid-template-columns:repeat(3,minmax(0,1fr))}}
+main{padding-top:clamp(14px,2.5vh,28px)}header{margin:0 0 16px}header h1{font-size:clamp(42px,6vw,68px);margin:6px 0}header p{margin:6px 0}#year-card{padding-block:16px;margin-top:clamp(26px,4vh,42px)}#year-card>p{margin:6px 0}.timeline{row-gap:3px}.month{height:39px;margin-top:91px}.month>.month-button{top:8px}
+.month::before{content:"";position:absolute;top:-2px;left:0;width:var(--elapsed,0%);height:2px;background:#437cc2;pointer-events:none}
+#overview{display:flow-root;padding-top:clamp(32px,11vh,98px);min-height:calc(100svh - clamp(14px,2.5vh,28px) + 12px)}#month-title:focus{outline:none}#back-year{margin-bottom:14px}
+.month>.month-button{top:-87px;left:4px;padding:4px 2px;background:linear-gradient(110deg,#4f5c6d,#637892);background-clip:text;color:transparent;font-size:clamp(12px,1.4vw,15px);font-weight:600;line-height:18px;letter-spacing:-.025em;border-radius:3px}.month>.month-button:hover,.month>.month-button[aria-expanded=true]{background:transparent;color:#1759ac;opacity:1;text-decoration:underline;text-underline-offset:4px}.timeline .marker{width:6px;height:6px;z-index:1}.timeline .marker::before{left:2px}.timeline .marker.below::before{top:5px;bottom:auto}.timeline-name.below{top:var(--label-height);bottom:auto}.timeline-name.past{color:#465466;background:#e9edf2}.timeline-name.upcoming{color:#124a9c;background:#edf3ff;box-shadow:inset 0 0 0 1px #aac4e7}.timeline-name.today{color:#fff;background:#1759ac}.timeline .marker.past{background:#66778a}.timeline .marker.upcoming{background:#fff;box-shadow:inset 0 0 0 1.5px #1759ac}.timeline .marker.today{border-radius:1px;transform:translate(-50%,-50%) rotate(45deg)}.birthday-key{display:inline-flex;flex-wrap:wrap;gap:10px;margin-left:8px;font-size:12px}.birthday-key span:first-child{color:#465466}.birthday-key span:not(:first-child){color:#124a9c}
+header h1{font-weight:730;letter-spacing:-.06em}
+h2{font-weight:670;letter-spacing:-.04em}
+.eyebrow{font-size:11px;font-weight:650;letter-spacing:.07em}
+.timeline-name{font-weight:500;letter-spacing:-.01em}
+body{font-family:"DM Sans",Arial,sans-serif;font-optical-sizing:auto}
+
+header h1{font-weight:720;font-stretch:88%;letter-spacing:-.045em}
+h2,.map-panel h3{font-weight:660;letter-spacing:-.025em}
+.month>.month-button{font-weight:620;letter-spacing:0;background:none;color:#546476}
+.timeline-name{font-weight:500;letter-spacing:0}
+body{background:#f4f6f9;color:#202936}
+#overview{padding-top:clamp(8px,3vh,28px)}
+header h1{font-family:"UnifrakturMaguntia","Old English Text MT",serif;font-size:clamp(49px,8vw,98px);font-weight:400;font-stretch:normal;letter-spacing:0;line-height:1.08;color:#24374e}
+header .eyebrow{color:#536279;letter-spacing:.105em}
+#year-card{margin-top:clamp(26px,4.5vh,48px);padding:clamp(16px,3vw,32px);background:#fff;border:1px solid #e1e6ed;border-radius:26px;box-shadow:none}
+#year-title{font-size:clamp(22px,3vw,32px);font-weight:620}
+.year-meta{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:6px 14px;margin:5px 0 9px}
+.year-meta p{margin:0;font-size:13px}
+.birthday-key{margin:0}
+.month{border-left-color:#e1e6ed;border-top-color:#c6d0de}
+.month>.month-button{top:-87px;left:6px;color:#29384e;font-size:clamp(12px,1.5vw,17px);font-weight:620}
+.month>.month-button[aria-expanded=true]{color:#1759ac}
+.timeline-name{border-radius:5px;font-size:12px}
+.timeline-name.past{background:#f1f3f6;color:#465466}
+.timeline-name.upcoming{background:#edf4ff;box-shadow:none;color:#174c90}
+.timeline-name:hover{outline:1px solid currentColor}
+#calendar{border:1px solid #e1e6ed;box-shadow:none}
+.day{background:#f3f5f8}
+@media(max-width:640px){.year-meta{margin-bottom:12px}.timeline-name{font-size:11px}}
+.grid .day.blank{background:transparent}.month-layout{grid-template-columns:repeat(2,minmax(0,1fr))}#map-caption{min-height:3.1em}#empty{margin:10px 0 0}@media(max-width:850px){.month-layout{grid-template-columns:minmax(0,1fr)}}
+main{padding-bottom:14px}#calendar{padding-block:clamp(14px,2vw,22px);margin-bottom:0;min-height:calc(100svh - 30px)}
+
+#year-card{margin-top:clamp(36px,6.5vh,60px)}
+#month-title,.month>.month-button{font-family:"Source Serif 4",Georgia,serif;font-weight:600;letter-spacing:-.02em}
+.year-meta p,#map-caption{font-family:"DM Sans",Arial,sans-serif;font-size:13px;font-weight:400;line-height:1.55;color:#536279}
+header .eyebrow{font-size:clamp(12px,1.3vw,15px)}
+.intake-brand{display:flex;align-items:center;gap:12px;text-transform:none}.intake-text{display:grid;gap:2px;line-height:1.15}.intake-name{font-size:clamp(15px,1.65vw,19px);letter-spacing:.01em}.intake-number{font-size:clamp(10px,1.1vw,13px);letter-spacing:.035em}.intake-brand img{object-fit:contain;flex:none}
+.carto-motto{display:grid;justify-items:center;align-content:center;gap:1px;margin-inline-start:-5px;color:#29384e}.carto-motto span{font:400 10px/1.1 'DM Sans',Arial,sans-serif;text-transform:uppercase;letter-spacing:.17em}.carto-motto em{font:400 25px/.95 Satisfy,'Segoe Script',cursive;letter-spacing:0}
+.intake-brand{gap:clamp(8px,1.2vw,14px)}.brand-slash{width:1px;height:34px;background:#d8dfe8;margin-inline:4px;flex:none}
+#overview header h1{margin-top:clamp(20px,4vh,36px);margin-bottom:0;line-height:.93;transform:translateY(calc(8px + .0372em)) skewX(-8deg) scale(1.08,1.26);transform-origin:left center;width:100%}
+.intake-brand{width:fit-content;text-decoration:none}.intake-brand:hover .intake-name{text-decoration:underline;text-underline-offset:3px}.intake-brand:focus-visible{outline:2px solid #1764c2;outline-offset:5px}
+@media(max-width:640px){#overview header h1{font-size:clamp(40px,9vw,54px);width:100%;transform:translateY(calc(8px + .0279em)) skewX(-8deg) scale(.99,1.20)}}
+#overview header{position:relative;isolation:isolate}#year-card{position:relative}
+
+
+#map-caption{min-height:0;margin:6px 0 10px}.map-credit{font-size:11px;margin:4px 0 0}.class-photo{margin:14px 0 0}.class-photo img{display:block;width:100%;height:auto;border-radius:12px}
+#city-detail{display:inline;margin-inline-start:8px;color:#1759ac;white-space:nowrap}
+.pin-label{position:absolute;left:50%;top:calc(100% + 3px);transform:translateX(-50%);max-width:110px;width:max-content;background:#fff;color:#24374e;padding:2px 5px;border-radius:4px;font-size:10px;line-height:1.2;box-shadow:0 1px 5px #0002;pointer-events:none}
+#photo-stage{position:relative}.photo-birthday{position:absolute;transform:translate(-50%,-100%);width:66px;height:29px;pointer-events:none;color:#ffe78b;filter:drop-shadow(0 1px 2px #24374e)}.class-photo .photo-birthday svg{display:block;width:100%;height:100%}
+.map-controls{display:flex;justify-content:flex-end;gap:5px;margin-bottom:6px}.map-controls button:disabled{opacity:.45;cursor:default}#map-viewport{aspect-ratio:2/1;overflow:auto;border-radius:16px;background:#f5f7fa;scrollbar-width:none}
+#map-viewport.zoomed{cursor:grab;user-select:none}#map-viewport.dragging{cursor:grabbing}
+.map-popup.outside{position:relative;inset:auto;transform:none;margin:8px 0 0;width:100%;max-width:260px}
+.map-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.map-heading .map-controls{margin:0}.map-heading button{padding:5px 9px}
+.class-photo{margin-top:8px}.map-credit{margin-top:3px}
+#back-year{margin-bottom:8px}#calendar .bar{margin-bottom:10px}
+@media(min-width:851px){
+  .map-panel{width:min(100%,54svh);justify-self:center}
+  #calendar .day{min-height:clamp(44px,7.5svh,70px)}
+}
+.month-layout .map-panel{width:100%}
+.birthday-summary{display:flex;align-items:baseline;flex-wrap:wrap;gap:3px 8px;font-size:13px;margin-bottom:8px}
+.birthday-summary #close-popup{order:1;margin-inline-start:auto;padding:2px 7px}
+.birthday-summary #city-detail{display:inline;margin:0}
+#photo-pane{margin-top:0}
+#map-pane{margin-top:10px}
+#map-pane summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:9px;background:#eef3f9;color:#174c90;font-size:14px;font-weight:600}
+#map-pane summary::after{content:"⌄";margin-inline-start:auto}
+#map-pane[open] summary::after{transform:rotate(180deg)}
+#map-pane summary::-webkit-details-marker{display:none}
+#map-pane .map-heading{margin-top:10px}
+#map-pane #map-viewport{margin-top:8px}.birthday-summary{margin:5px 0 0}.birthday-summary #close-popup{background:transparent;font-size:12px}
+#calendar .day:not(.blank){background:#fafbfd;color:#596679}
+#calendar .day:has(button){background:#edf3fb;color:#24374e}
+#calendar .day:has(button[aria-pressed=true]){background:#e4eefc}
+#calendar .day:has(button){background:linear-gradient(145deg,#fbfdff,#eaf2fc);box-shadow:inset 0 0 0 1px #719bd1,inset 0 1px 0 #fff;transition:box-shadow .18s ease,background-color .18s ease}
+#calendar .day:has(button[aria-pressed=true]){background:#e4eefc;box-shadow:inset 0 0 0 2px #285eaa,inset 0 1px 0 #fff}
+#calendar .day button,#calendar .day button[aria-pressed=true]{background:transparent;color:#174c90}
+#calendar .day button:hover{text-decoration:none}
+#calendar .birthday-hit-area{cursor:pointer}
+.month-actions{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:8px 14px}.month-actions #close-popup{background:transparent;font-size:12px;padding:5px 2px}.month-actions #close-popup:hover{text-decoration:underline}
+.birthday-celebration{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:1}
+
+.birthday-celebration span{position:absolute;top:-40px;font-size:clamp(18px,2.5vw,30px);opacity:0;animation:birthday-float 7.5s linear var(--delay) both}
+@keyframes birthday-float{
+  0%{opacity:0;transform:translateY(0) rotate(-12deg)}
+  18%{opacity:.86}
+  96%{opacity:.76}
+  100%{opacity:0;transform:translateY(calc(100vh + 80px)) rotate(16deg)}
+}
+@media(prefers-reduced-motion:reduce){.birthday-celebration{display:none}}
+.birthday-celebration{transition:opacity 1s ease}.birthday-celebration.ending{opacity:0}
+.birthday-banner{position:absolute;right:0;bottom:8px;display:flex;align-items:baseline;justify-content:flex-end;flex-wrap:wrap;gap:2px 6px;max-width:24%;color:#24374e;font-size:14px}.birthday-banner strong{font-family:Satisfy,cursive;font-size:22px;font-weight:400}
+@media(max-width:1040px){.birthday-banner{right:auto;left:0;top:calc(100% + 10px);bottom:auto;max-width:100%;justify-content:flex-start;font-size:12px}.birthday-banner strong{font-size:17px}}
+#calendar{display:flex;flex-direction:column}.section-links{display:flex;align-items:center;gap:14px;margin-top:auto;padding-top:16px}#calendar #back-year{align-self:flex-start}
+.section-links .events-link{display:inline-flex;justify-content:center;box-sizing:border-box;font:inherit;padding:8px 11px;border-radius:10px;background:#edf3ff;color:#124a9c;text-decoration:none}
+.section-links .events-link:hover{background:#dce9ff}
+#events{margin:22px 0 0;border:1px solid #e1e6ed;box-shadow:none;scroll-margin-top:16px}
+.events-back{margin-bottom:8px}
+.event-entry{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center;border-top:1px solid #e1e6ed;padding-top:18px}
+.event-entry h3{margin:6px 0;font-size:22px}.event-entry p{margin:0}
+.event-date{color:#536279;font-size:13px}
+.event-photo-placeholder{display:grid;place-items:center;aspect-ratio:16/9;border:1px dashed #bdcada;border-radius:12px;background:#f4f7fb;color:#536279;font-size:13px}
+@media(max-width:640px){.event-entry{grid-template-columns:1fr}}
+.event-entry + .event-entry{margin-top:20px}
+.event-story,.event-pending{grid-template-columns:1fr}
+.event-story p + p{margin-top:8px}
+.event-gallery{display:grid;grid-template-columns:1fr 1fr 1.78fr;gap:8px;align-items:center}
+.event-gallery a{display:block}
+.event-gallery img{display:block;width:100%;height:auto;border-radius:10px}
+@media(max-width:640px){.event-gallery{grid-template-columns:1fr 1fr}.event-gallery a:last-child{grid-column:1/-1}}
+#calendar #back-year,.events-back,.section-links .events-link{width:9em;text-align:center}
+.event-gallery:has(>a:only-child){grid-template-columns:minmax(0,280px)}
+.event-gallery:has(>a:only-child) a{grid-column:auto}
+.event-edit{justify-self:start}
+#event-editor{width:min(540px,calc(100% - 32px));max-height:85vh;overflow:auto;border:1px solid #e1e6ed;border-radius:18px;padding:22px;color:#24374e}
+#event-editor::backdrop{background:#182d4b66}
+#event-form label{display:grid;gap:4px;margin-top:12px}
+#event-form input,#event-form textarea{font:inherit;width:100%;padding:7px;border:1px solid #bdcada;border-radius:6px}
+#event-photo-list{padding:0;list-style:none}
+#event-photo-list li{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:5px 0;overflow-wrap:anywhere}
+#event-photo-list button{flex:none}
+.event-editor-actions{display:flex;justify-content:flex-end;gap:8px}
+.calendar-year{color:#536279;font:500 .48em "DM Sans",Arial,sans-serif;margin-left:.35em;letter-spacing:0}
+#event-image-viewer{position:fixed;inset:0;width:100%;height:100%;max-width:none;max-height:none;padding:36px;margin:0;border:0;background:transparent;box-shadow:none}
+#event-image-viewer[open]{display:grid;place-items:center}
+#event-image-viewer img{max-width:100%;max-height:calc(100dvh - 72px);object-fit:contain;border-radius:8px}
+#event-image-viewer button{position:absolute;top:8px;right:12px}
+#event-image-viewer::backdrop{background:#111a29db}
+#atlas-backdrop{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+#atlas-backdrop svg{position:absolute;left:50%;top:46%;width:max(112vw,150vh);height:auto;transform:translate(-50%,-50%);opacity:.72}
+#atlas-backdrop path{fill:#e3eaf0;stroke:#bdcbd9;stroke-width:.18}
+main{position:relative;z-index:2}
+#year-card{scroll-margin-top:16px}
+.event-disclosure summary{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 14px;cursor:pointer;list-style:none}
+.event-disclosure summary::-webkit-details-marker{display:none}
+.event-disclosure summary::after{content:"⌄";margin-inline-start:auto;color:#1759ac}
+.event-disclosure[open] summary::after{transform:rotate(180deg)}
+.event-disclosure h3{margin:0}
+.event-body{display:grid;gap:14px;margin-top:12px}
+.events-closing{margin:22px 0 0;padding-top:16px;border-top:1px solid #e1e6ed;font-size:14px}
+.year-heading{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 16px}
+#download-birthdays{font-size:13px}
+.calendar-subscribe{position:relative;z-index:5;font-size:13px}
+.calendar-subscribe summary{cursor:pointer;list-style:none;padding:8px 11px;border-radius:10px;background:#edf3ff;color:#124a9c}
+.calendar-subscribe summary::-webkit-details-marker{display:none}
+.calendar-subscribe-options{position:absolute;right:0;top:calc(100% + 6px);width:min(320px,78vw);padding:12px;border:1px solid #dce5f0;border-radius:12px;background:white;box-shadow:0 6px 24px #24374e22}
+.calendar-subscribe-options a{display:block;padding:4px 0;color:#1759ac}
+.calendar-subscribe-options p{font-size:12px;margin:6px 0}
+.calendar-subscribe-options input{width:100%;font:inherit;margin:4px 0 7px}
+@media(max-width:640px){.calendar-subscribe-options{left:0;right:auto}}
+</style>
+<div id="atlas-backdrop" aria-hidden="true"></div>
+<main>
+<div id="overview"><header><div class="eyebrow">Cartography · Mobile demo</div><h1>Birthday Atlas</h1></header>
+<section class="card" id="year-card" aria-labelledby="year-title"><div class="year-heading"><h2 id="year-title">The year at a glance</h2><details class="calendar-subscribe">
+  <summary>Add birthdays to my calendar</summary>
+  <div class="calendar-subscribe-options">
+    <div id="calendar-providers" hidden>
+      <a id="subscribe-apple">Apple Calendar</a>
+      <a href="https://calendar.google.com/calendar/u/0/r/settings/addbyurl" target="_blank" rel="noopener">Google Calendar ↗</a>
+      <a href="https://outlook.live.com/calendar/" target="_blank" rel="noopener">Outlook Calendar ↗</a>
+      <p>For Google, use <strong>From URL</strong>. For Outlook, choose <strong>Add calendar → Subscribe from web</strong>.</p>
+      <label for="birthday-feed-url">Subscription URL</label>
+      <input id="birthday-feed-url" type="url" readonly>
+      <button id="copy-birthday-feed" type="button">Copy link</button>
+      <span id="calendar-copy-status" role="status"></span>
+    </div>
+    <p id="calendar-local-note">Calendar subscription links will be available on the published site.</p>
+    <button id="download-birthdays" type="button">Download calendar file</button>
+  </div>
+</details></div><div class="year-meta"><p>Select a month to open its calendar.</p><span class="birthday-key"><span>● Past</span><span>○ Upcoming</span><span>◆ Today</span></span></div><div class="year-view" role="region" aria-label="January through December birthday timeline"><div class="timeline" id="timeline"></div></div></section>
+</div><section class="card" id="calendar" hidden aria-labelledby="month-title"><button id="back-year">← Back to year</button><div class="bar"><h2 id="month-title" tabindex="-1"></h2><div class="month-actions"><div id="map-popup" hidden><button id="close-popup">Show all birthdays</button></div><div class="nav"><button id="prev" aria-label="Previous month">←</button><button id="next" aria-label="Next month">→</button></div></div></div><div class="month-layout"><div><div class="grid" id="grid"></div><p id="empty" hidden>No birthdays listed this month.</p></div>
+<div class="map-panel" id="map-card"><figure class="class-photo" id="photo-pane"><div id="photo-stage"><div class="event-photo-placeholder">Class photo area</div></div></figure><details id="map-pane"><summary><span aria-hidden="true">⌖</span> <span id="map-location">Where in the world?</span></summary>
+<div id="map-viewport" tabindex="0" aria-label="Birthday map, scroll to pan when zoomed"><div class="map" id="map">
+<svg id="land" viewBox="0 0 360 180" aria-hidden="true"></svg>
+
+</div>
+</div><p class="map-credit"><a href="https://www.naturalearthdata.com/downloads/110m-physical-vectors/110m-land/">Natural Earth</a> · <span id="map-status">Loading basemap…</span> <a id="city-detail" hidden target="_blank" rel="noopener noreferrer">Open in Google Maps ↗</a></p></details></div></div><div class="section-links"><a class="events-link" href="#events">Events ↓</a></div></section>
+<section id="events" class="card" aria-labelledby="events-title">
+  <button class="events-back" id="events-back-year">← Back to year</button>
+  <h2 id="events-title">Events</h2>
+  <p>Birthday moments we shared.</p>
+  
+  
+  <article class="event-entry event-story" data-event="demo">
+    <details class="event-disclosure">
+      <summary><h3>Avery's birthday party</h3><span class="event-date">January 14 · Demo event</span></summary>
+      <div class="event-body"><div class="event-copy"><p>We shared cake and played a few rounds of our favourite board game.</p></div>
+      <div class="event-gallery"></div></div>
+    </details>
+  </article>
+  <p class='events-closing'>There are plenty more birthdays to celebrate together. We’ll keep adding our favourite moments here, so stay tuned!</p>
+</section>
+<dialog id="event-image-viewer" aria-label="Event photo"><button type="button" aria-label="Close photo">×</button><img alt=""></dialog>
+<dialog id="event-editor" aria-labelledby="event-editor-title">
+  <form id="event-form">
+    <h2 id="event-editor-title">Edit event</h2>
+    <label>Title <input id="event-title-input" required></label>
+    <label>Story <textarea id="event-story-input" rows="6" required></textarea></label>
+    <label>Add photos <input id="event-files" type="file" accept="image/*" multiple></label>
+    <ul id="event-photo-list"></ul>
+    <p id="event-edit-status" role="status">Edits are saved in this browser.</p>
+    <div class="event-editor-actions"><button type="button" id="event-cancel">Cancel</button><button type="submit" id="event-save">Save changes</button></div>
+  </form>
+</dialog>
+</main>
+<script>
+const samples = [
+  {name:'Avery',month:0,day:14,city:{name:'Lisbon, Portugal',lon:-9.14,lat:38.72}},
+  {name:'Robin',month:2,day:8,city:{name:'Oslo, Norway',lon:10.75,lat:59.91}},
+  {name:'Morgan',month:5,day:18,city:{name:'Athens, Greece',lon:23.73,lat:37.98}},
+  {name:'Charlie',month:8,day:27,city:{name:'Helsinki, Finland',lon:24.94,lat:60.17}},
+  {name:'Sage',month:10,day:18,city:{name:'Dublin, Ireland',lon:-6.26,lat:53.35}},
+  {name:'Taylor',month:11,day:9,city:{name:'Copenhagen, Denmark',lon:12.57,lat:55.68}}
+];
+const today = new Date();
+const year = today.getFullYear();
+const months = Array.from({length:12}, (_, month) =>
+  new Date(year,month,1).toLocaleDateString('en',{month:'long'}));
+const project = (lon,lat) => [lon + 180,90 - lat];
+const byId = id => document.getElementById(id);
+const monthButtons = [];
+const daysIn = month => new Date(year,month+1,0).getDate();
+const make = (tag, label, className) => {
+  const node = document.createElement(tag);
+  node.textContent = label;
+  if (className) node.className = className;
+  return node;
+};
+const nameButton = sample => {
+  const button = make('button',sample.name);
+  button.dataset.person = sample.name;
+  button.setAttribute('aria-label', sample.name + ', ' + months[sample.month] + ' ' + sample.day);
+  button.onclick = () => {
+    if (activeMonth !== sample.month || (button.classList.contains('timeline-name') && activeYear !== year) || byId('calendar').hidden) openMonth(sample.month);
+    const city = sample.city;
+    const map = byId('map');
+    map.querySelectorAll('.pin').forEach(pin => {
+      const selected = pin.dataset.name === sample.name;
+      pin.classList.toggle('selected',selected);
+      pin.hidden = !selected;
+    });
+    byId('grid').querySelectorAll('button').forEach(cell => cell.setAttribute('aria-pressed',cell.dataset.person===sample.name));
+    const popup = byId('map-popup');
+    byId('map-location').textContent = city?.name || sample.location || 'Hometown not listed';
+    const cityDetail = byId('city-detail');
+    cityDetail.hidden = !city;
+    if (city) cityDetail.href = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(city.lat + ',' + city.lon);
+    byId('close-popup').textContent = 'Show all ' + months[sample.month] + ' birthdays';
+    popup.hidden = false;
+    renderPhotoBirthdays(sample);
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) popup.animate([{opacity:0},{opacity:1}],180);
+    const fromTimeline = button.classList.contains('timeline-name');
+    centerSelectedCity();
+    const target = fromTimeline ? byId('calendar') : byId('map-card');
+    if (fromTimeline) byId('month-title').focus({preventScroll:true});
+    target.scrollIntoView({
+      block: fromTimeline ? 'start' : 'nearest',
+      behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'
+    });
+  };
+  return button;
+};
+let activeMonth = 0;
+let activeYear = year;
+const monthMapPrompt = month => 'Where do our ' + months[month] + ' stars call home?';
+function renderMap(month, birthdays) {
+  byId('map-location').textContent = monthMapPrompt(month);
+  byId('city-detail').hidden = true;
+  zoomMap(-zoomIndex);
+  renderPhotoBirthdays();
+  byId('map-popup').hidden = true;
+  const map = byId('map');
+  map.querySelectorAll('.pin').forEach(pin => pin.remove());
+  const mapped = birthdays.filter(sample => sample.city);
+  mapped.forEach(sample => {
+    const city = sample.city;
+    const pin = nameButton(sample);
+    pin.className = 'pin';
+    pin.dataset.name = sample.name;
+    const cityLabel = make('span',city.name.split(',')[0],'pin-label');
+    pin.replaceChildren(cityLabel);
+    pin.setAttribute('aria-label',sample.name + ' · ' + city.name);
+    const [x,y] = project(city.lon,city.lat);
+    pin.style.left = x/3.6 + '%';
+    pin.style.top = y/1.8 + '%';
+    map.append(pin);
+  });
+  byId('map-card').hidden = false;
+}
+function openMonth(month, jump = false, calendarYear = year) {
+  activeYear = calendarYear;
+  activeMonth = month;
+  monthButtons.forEach((button,index) => button.setAttribute('aria-expanded',index===month));
+  byId('month-title').replaceChildren(months[month],make('span',' ' + calendarYear,'calendar-year'));
+  const grid = byId('grid');
+  grid.replaceChildren();
+  for (const weekday of ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']) grid.append(make('div',weekday,'weekday'));
+  const monthLength = new Date(calendarYear,month+1,0).getDate();
+  const offset = (new Date(calendarYear,month,1).getDay()+6)%7;
+  for (let i=0; i<offset; i++) grid.append(make('div','','day blank'));
+  const birthdays = samples.filter(sample => sample.month===month);
+  for (let day=1; day<=monthLength; day++) {
+    const cell = make('div',day,'day');
+    birthdays.filter(sample => sample.day===day).forEach(sample => {
+      const button = nameButton(sample);
+      if (calendarYear === year && month === today.getMonth() && day === today.getDate()) {
+        const cake = make('span',' 🎂');
+        cake.setAttribute('aria-hidden','true');
+        button.append(cake);
+        button.setAttribute('aria-label',button.getAttribute('aria-label') + ' · Birthday today');
+      }
+      cell.append(button);
+    });
+    const personButton = cell.querySelector('button:only-of-type');
+    if (personButton) {
+      cell.classList.add('birthday-hit-area');
+      cell.addEventListener('click', event => {
+        if (!event.target.closest('button')) personButton.click();
+      });
+    }
+    grid.append(cell);
+  }
+  const trailing = (7 - (offset + monthLength) % 7) % 7;
+  for (let i=0; i<trailing; i++) grid.append(make('div','','day blank'));
+  renderMap(month, birthdays);
+  byId('empty').hidden = birthdays.length>0;
+  byId('calendar').hidden = false;
+  if (jump) {
+    byId('month-title').focus({preventScroll:true});
+    byId('calendar').scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
+  }
+}
+months.forEach((name,month) => {
+  const section = make('div','','month');
+  const elapsed = month < today.getMonth() ? 100 :
+    month === today.getMonth() ? 100*(today.getDate()-1)/daysIn(month) : 0;
+  section.style.setProperty('--elapsed',elapsed+'%');
+  const button = make('button',name,'month-button');
+  button.setAttribute('aria-expanded','false');
+  button.setAttribute('aria-controls','calendar');
+  button.onclick = () => openMonth(month,true);
+  monthButtons.push(button);
+  section.append(button);
+  samples.filter(sample => sample.month===month).sort((a,b)=>a.day-b.day).forEach((sample,index) => {
+    const marker = make('span','','marker');
+        const below = index % 2 === 1;
+    const height = 9 + Math.floor(index / 2)*25;
+    const birthday = new Date(year,month,sample.day);
+    const dayStart = new Date(year,today.getMonth(),today.getDate());
+    const status = birthday < dayStart ? 'past' : birthday > dayStart ? 'upcoming' : 'today';
+    marker.classList.add(status);
+    if (below) marker.classList.add('below');
+    marker.style.left = ((sample.day-.5)/daysIn(month)*100) + '%';
+    marker.style.setProperty('--stem',height+'px');
+    const label = nameButton(sample);
+    label.classList.add('timeline-name',status);
+    if (below) label.classList.add('below');
+    label.setAttribute('aria-label',label.getAttribute('aria-label') + ' · ' + status);
+    label.style.setProperty('--date-position',marker.style.left);
+    label.style.setProperty('--label-height',(height+3)+'px');
+    section.append(label);
+    section.append(marker);
+  });
+  byId('timeline').append(section);
+});
+byId('close-popup').onclick = () => {
+  byId('map-location').textContent = monthMapPrompt(activeMonth);
+  byId('city-detail').hidden = true;
+  renderPhotoBirthdays();
+  byId('map-popup').hidden = true;
+  byId('map').querySelectorAll('.pin').forEach(pin => {
+    pin.classList.remove('selected');
+    pin.hidden = false;
+  });
+  byId('grid').querySelector('[aria-pressed=true]')?.setAttribute('aria-pressed','false');
+};
+function backToYear() {
+  monthButtons[activeMonth].focus({preventScroll:true});
+  byId('year-card').scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
+}
+byId('back-year').onclick = backToYear;
+byId('events-back-year').onclick = backToYear;
+function stepMonth(step) {
+  const date = new Date(activeYear,activeMonth+step,1);
+  openMonth(date.getMonth(),false,date.getFullYear());
+}
+byId('prev').onclick = () => stepMonth(-1);
+byId('next').onclick = () => stepMonth(1);
+const photoPositions = {};
+const longerPhotoArrows = new Set();
+const lowerPhotoAnchors = {};
+const birthdaysToday = samples.filter(person =>
+  person.month === today.getMonth() && person.day === today.getDate()
+);
+function renderPhotoBirthdays(selected) {
+  const stage = byId('photo-stage');
+  stage.querySelectorAll('.photo-birthday').forEach(marker => marker.remove());
+  const people = selected
+    ? [selected] : birthdaysToday;
+  for (const person of people) {
+    const position = photoPositions[person.name];
+    if (!position) continue;
+    const [x,y] = position;
+    const marker = make('span','','photo-birthday');
+    marker.setAttribute('aria-hidden','true');
+    const lowerAnchor = lowerPhotoAnchors[person.name];
+    const pointsUp = lowerAnchor !== undefined;
+    const height = longerPhotoArrows.has(person.name) ? 49 : 29;
+    const tip = height - 2;
+    const arrow = pointsUp ? 'M39 17 Q41 13 39 8 M35 12 Q37 10 39 8 Q41 10 43 12'
+      : 'M39 14 Q' + (height > 29 ? 43 : 41) + ' ' + ((14 + tip)/2) + ' 39 ' + tip + ' M35 ' + (tip-5) + ' Q37 ' + (tip-2) + ' 39 ' + tip + ' Q41 ' + (tip-1) + ' 43 ' + (tip-5);
+    marker.style.width = '78px';
+    marker.style.height = height + 'px';
+    if (pointsUp) marker.style.transform = 'translateX(-50%)';
+    marker.innerHTML = '<svg viewBox="0 0 78 ' + height + '" aria-hidden="true"><text x="39" y="' +
+      (pointsUp ? 27 : 11) + '" text-anchor="middle" fill="currentColor" font-family="Satisfy, cursive" font-size="13">Birthday Star</text><path d="' +
+      arrow + '" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    marker.style.left = x + '%';
+    marker.style.top = (lowerAnchor ?? (y - 2)) + '%';
+    stage.append(marker);
+  }
+}
+const zoomLevels = [1,1.5,2,3,4];
+let zoomIndex = 0;
+function zoomMap(step, anchor) {
+  const viewport = byId('map-viewport');
+  const map = byId('map');
+  const focus = map.querySelector('.pin.selected') || map.querySelector('.pin');
+  const anchorX = anchor?.x ?? viewport.clientWidth/2;
+  const anchorY = anchor?.y ?? viewport.clientHeight/2;
+  const x = !anchor && focus ? parseFloat(focus.style.left)/100 : (viewport.scrollLeft + anchorX)/map.offsetWidth;
+  const y = !anchor && focus ? parseFloat(focus.style.top)/100 : (viewport.scrollTop + anchorY)/map.offsetHeight;
+  zoomIndex = Math.max(0,Math.min(zoomLevels.length - 1,zoomIndex + step));
+  viewport.classList.toggle('zoomed',zoomIndex > 0);
+  map.style.width = zoomLevels[zoomIndex]*100 + '%';
+  viewport.scrollLeft = x*map.offsetWidth - anchorX;
+  viewport.scrollTop = y*map.offsetHeight - anchorY;
+}
+const mapViewport = byId('map-viewport');
+mapViewport.addEventListener('keydown', event => {
+  if (event.key !== '+' && event.key !== '=' && event.key !== '-') return;
+  event.preventDefault();
+  zoomMap(event.key === '-' ? -1 : 1);
+});
+function centerSelectedCity() {
+  const pin = byId('map').querySelector('.pin.selected');
+  if (!pin || !byId('map-pane').open) return;
+  mapViewport.scrollLeft = pin.offsetLeft - mapViewport.clientWidth/2;
+  mapViewport.scrollTop = pin.offsetTop - mapViewport.clientHeight/2;
+}
+byId('map-pane').addEventListener('toggle', () => {
+  if (!byId('map-pane').open) return;
+  centerSelectedCity();
+  byId('map-viewport').scrollIntoView({
+    block:'nearest',
+    behavior:matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'
+  });
+});
+let lastWheelZoom = -Infinity;
+mapViewport.addEventListener('wheel', event => {
+  if (event.ctrlKey || !event.deltaY || Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
+  event.preventDefault();
+  const step = event.deltaY < 0 ? 1 : -1;
+  const next = zoomIndex + step;
+  if (next < 0 || next >= zoomLevels.length || event.timeStamp - lastWheelZoom < 130) return;
+  const bounds = mapViewport.getBoundingClientRect();
+  zoomMap(step,{x:event.clientX - bounds.left,y:event.clientY - bounds.top});
+  lastWheelZoom = event.timeStamp;
+},{passive:false});
+let mapDrag;
+let suppressMapClick = false;
+mapViewport.addEventListener('pointerdown', event => {
+  suppressMapClick = false;
+  if (!zoomIndex || event.pointerType !== 'mouse' || event.button !== 0 || event.target.closest('.map-popup')) return;
+  mapDrag = {id:event.pointerId,x:event.clientX,y:event.clientY,left:mapViewport.scrollLeft,top:mapViewport.scrollTop};
+});
+window.addEventListener('pointermove', event => {
+  if (mapDrag?.id !== event.pointerId) return;
+  const dx = event.clientX - mapDrag.x;
+  const dy = event.clientY - mapDrag.y;
+  if (!suppressMapClick && Math.hypot(dx,dy) < 4) return;
+  if (!suppressMapClick) {
+    suppressMapClick = true;
+    mapViewport.setPointerCapture(event.pointerId);
+    mapViewport.classList.add('dragging');
+  }
+  mapViewport.scrollLeft = mapDrag.left - dx;
+  mapViewport.scrollTop = mapDrag.top - dy;
+});
+for (const type of ['pointerup','pointercancel']) {
+  window.addEventListener(type,event => {
+    if (mapDrag?.id !== event.pointerId) return;
+    mapDrag = undefined;
+    mapViewport.classList.remove('dragging');
+  });
+}
+mapViewport.addEventListener('click',event => {
+  if (!suppressMapClick || event.detail === 0) return;
+  suppressMapClick = false;
+  event.preventDefault();
+  event.stopPropagation();
+},true);
+openMonth(today.getMonth());
+renderPhotoBirthdays();
+if (birthdaysToday.length) {
+  const banner = make('div','','birthday-banner');
+  const names = new Intl.ListFormat('en').format(birthdaysToday.map(person => person.name));
+  banner.append(make('strong','Happy birthday,'),make('span',names + '!'));
+  byId('overview').querySelector('header').append(banner);
+}
+if (birthdaysToday.length && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  const celebration = make('div','','birthday-celebration');
+  celebration.setAttribute('aria-hidden','true');
+  const icons = ['🎂','🕯️','🎈'];
+  const delays = Array.from({length:38}, (_, i) => i / 3);
+  const iconCount = delays.length;
+  for (let i = 0; i < iconCount; i++) {
+    const icon = make('span',icons[i % icons.length]);
+    const position = Math.random();
+    icon.style.left = 'calc(' + (position * 100) + '% - ' + (position * 32) + 'px)';
+    const slot = Math.floor(Math.random() * delays.length);
+    icon.style.setProperty('--delay',delays.splice(slot,1)[0] + 's');
+
+    celebration.append(icon);
+  }
+  document.querySelector('main').before(celebration);
+  setTimeout(() => celebration.remove(),20500);
+}
+fetch('https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_land.geojson')
+  .then(response => {
+    if (!response.ok) throw new Error('Basemap unavailable');
+    return response.json();
+  })
+  .then(data => {
+    const svg = byId('land');
+    for (const {geometry} of data.features) {
+      const polygons = geometry.type === 'Polygon' ? [geometry.coordinates] : geometry.coordinates;
+      const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+      path.setAttribute('d',polygons.flatMap(polygon => polygon.map(ring =>
+        'M' + ring.map(([lon,lat]) => project(lon,lat).map(value => value.toFixed(2)).join(',')).join('L') + 'Z'
+      )).join(' '));
+      path.setAttribute('fill','#dbe5ed');
+      path.setAttribute('stroke','#adbfce');
+      path.setAttribute('stroke-width','.3');
+      path.setAttribute('fill-rule','evenodd');
+      svg.append(path);
+    }
+    const backgroundMap = svg.cloneNode(true);
+    backgroundMap.removeAttribute('id');
+    byId('atlas-backdrop').append(backgroundMap);
+    byId('map-status').textContent = 'Plate Carrée';
+  })
+  .catch(() => {
+    byId('map-status').textContent = 'Basemap unavailable. City markers still show coordinates.';
+  });
+const eventImageViewer = byId('event-image-viewer');
+const eventImage = eventImageViewer.querySelector('img');
+byId('events').addEventListener('click',event => {
+  const link = event.target.closest('.event-gallery a');
+  if (!link || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+  event.preventDefault();
+  eventImage.alt = link.querySelector('img').alt;
+  eventImage.src = link.href;
+  eventImageViewer.showModal();
+});
+eventImageViewer.addEventListener('click',event => {
+  if (event.target !== eventImage) eventImageViewer.close();
+});
+eventImageViewer.addEventListener('close',() => eventImage.removeAttribute('src'));
+const eventEditor = byId('event-editor');
+const eventForm = byId('event-form');
+const eventFiles = byId('event-files');
+const eventStatus = byId('event-edit-status');
+const eventSave = byId('event-save');
+const eventCancel = byId('event-cancel');
+let eventDraft;
+let editedEvent;
+let savingEvent = false;
+
+const eventDatabase = new Promise((resolve,reject) => {
+  const request = indexedDB.open('birthday-atlas-events',1);
+  request.onupgradeneeded = () => request.result.createObjectStore('events');
+  request.onsuccess = () => resolve(request.result);
+  request.onerror = () => reject(request.error);
+}).catch(() => null);
+
+function displayEvent(entry, data) {
+  entry.querySelector('h3').textContent = data.title;
+  const story = entry.querySelector('.event-copy');
+  story.querySelectorAll('p').forEach(paragraph => paragraph.remove());
+  data.story.split(/\n+/).filter(Boolean).forEach(paragraph => story.append(make('p',paragraph)));
+  const gallery = entry.querySelector('.event-gallery');
+  gallery.querySelectorAll('img').forEach(img => {
+    if (img.src.startsWith('blob:')) URL.revokeObjectURL(img.src);
+  });
+  gallery.replaceChildren();
+  for (const photo of data.photos) {
+    const link = make('a','');
+    link.href = photo.file ? URL.createObjectURL(photo.file) : photo.src;
+    const image = make('img','');
+    image.src = link.href;
+    image.alt = photo.alt;
+    image.loading = 'lazy';
+    link.append(image);
+    gallery.append(link);
+  }
+}
+
+function showDraftPhotos() {
+  const list = byId('event-photo-list');
+  list.replaceChildren();
+  eventDraft.photos.forEach((photo,index) => {
+    const row = make('li','');
+    const remove = make('button','Remove');
+    remove.type = 'button';
+    remove.setAttribute('aria-label','Remove photo: ' + photo.alt);
+    remove.onclick = () => {
+      eventDraft.photos.splice(index,1);
+      showDraftPhotos();
+    };
+    row.append(make('span',photo.alt),remove);
+    list.append(row);
+  });
+}
+
+for (const entry of document.querySelectorAll('[data-event]')) {
+  const eventId = entry.dataset.event;
+  let current = {
+    title:entry.querySelector('h3').textContent,
+    story:[...entry.querySelectorAll('p')].map(p => p.textContent).join('\n\n'),
+    photos:[...entry.querySelectorAll('.event-gallery img')].map(img => ({
+      src:img.getAttribute('src'),alt:img.alt
+    }))
+  };
+  const edit = make('button','Edit event','event-edit');
+  edit.disabled = true;
+  entry.querySelector('.event-body').append(edit);
+  eventDatabase.then(database => {
+    if (!database) {
+      edit.disabled = false;
+      return;
+    }
+    const request = database.transaction('events').objectStore('events').get(eventId);
+    request.onsuccess = () => {
+      if (request.result) {
+        current = request.result;
+        displayEvent(entry,current);
+      }
+      edit.disabled = false;
+    };
+    request.onerror = () => { edit.disabled = false; };
+  });
+  edit.onclick = () => {
+    eventDraft = {...current,photos:[...current.photos]};
+    editedEvent = {entry,eventId,update:data => { current = data; }};
+    byId('event-title-input').value = current.title;
+    byId('event-story-input').value = current.story;
+    eventFiles.value = '';
+    eventStatus.textContent = 'Edits are saved in this browser.';
+    showDraftPhotos();
+    eventEditor.showModal();
+  };
+}
+eventFiles.onchange = () => {
+  for (const file of eventFiles.files) {
+    if (file.type.startsWith('image/')) eventDraft.photos.push({file,alt:file.name});
+  }
+  eventFiles.value = '';
+  showDraftPhotos();
+};
+eventCancel.onclick = () => eventEditor.close();
+eventEditor.addEventListener('cancel',event => {
+  if (savingEvent) event.preventDefault();
+});
+eventForm.onsubmit = async event => {
+  event.preventDefault();
+  const title = byId('event-title-input').value.trim();
+  const story = byId('event-story-input').value.trim();
+  if (!title || !story) {
+    eventStatus.textContent = 'Enter a title and a story.';
+    return;
+  }
+  const data = {title,story,photos:[...eventDraft.photos]};
+  savingEvent = eventSave.disabled = eventCancel.disabled = true;
+  try {
+    const database = await eventDatabase;
+    if (!database) throw new Error('Storage unavailable');
+    await new Promise((resolve,reject) => {
+      const transaction = database.transaction('events','readwrite');
+      transaction.oncomplete = resolve;
+      transaction.onabort = () => reject(transaction.error);
+      transaction.objectStore('events').put(data,editedEvent.eventId);
+    });
+    editedEvent.update(data);
+    displayEvent(editedEvent.entry,data);
+    eventEditor.close();
+  } catch {
+    eventStatus.textContent = 'Could not save these changes in this browser.';
+  } finally {
+    savingEvent = eventSave.disabled = eventCancel.disabled = false;
+  }
+};
+function birthdayCalendar() {
+  const stamp = new Date().toISOString().replace(/[-:]|\.\d{3}/g,'');
+  const lines = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Birthday Atlas//16th Intake//EN','CALSCALE:GREGORIAN'];
+  for (const person of samples) {
+    const month = String(person.month+1).padStart(2,'0');
+    const day = String(person.day).padStart(2,'0');
+    const firstYear = new Date(year,person.month,person.day+1) <= today ? year+1 : year;
+    lines.push(
+      'BEGIN:VEVENT',
+      'UID:' + encodeURIComponent(person.name) + '-' + month + day + '@birthday-atlas',
+      'DTSTAMP:' + stamp,
+      'DTSTART;VALUE=DATE:' + firstYear + month + day,
+      'RRULE:FREQ=YEARLY',
+      'SUMMARY:' + person.name + ' birthday'
+    );
+    if (location.protocol === 'https:' || location.protocol === 'http:') {
+      const pageUrl = new URL(location.href);
+      pageUrl.hash = 'year-card';
+      lines.push('URL:' + pageUrl.href);
+    }
+    lines.push('BEGIN:VALARM','TRIGGER:-P3D','ACTION:DISPLAY',
+      'DESCRIPTION:' + person.name + ' has a birthday in three days',
+      'END:VALARM','END:VEVENT');
+  }
+  return [...lines,'END:VCALENDAR',''].join('\r\n');
+}
+if (location.protocol === 'https:' && !['localhost','127.0.0.1','[::1]'].includes(location.hostname)) {
+  const feedUrl = new URL('birthday-atlas.ics',location.href);
+  byId('subscribe-apple').href = feedUrl.href.replace(/^https:/,'webcal:');
+  byId('birthday-feed-url').value = feedUrl.href;
+  byId('calendar-providers').hidden = false;
+  byId('calendar-local-note').hidden = true;
+  byId('copy-birthday-feed').onclick = async () => {
+    const input = byId('birthday-feed-url');
+    const status = byId('calendar-copy-status');
+    try {
+      await navigator.clipboard.writeText(input.value);
+      status.textContent = 'Copied';
+    } catch {
+      input.select();
+      status.textContent = 'Copy the selected address.';
+    }
+  };
+}
+byId('download-birthdays').onclick = () => {
+  const url = URL.createObjectURL(new Blob([birthdayCalendar()],{type:'text/calendar;charset=utf-8'}));
+  const link = make('a','');
+  link.href = url;
+  link.download = 'birthday-atlas.ics';
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url),1000);
+};
+</script>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
