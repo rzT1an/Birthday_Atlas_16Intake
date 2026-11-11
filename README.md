@@ -1,6 +1,6 @@
 <h1>
 <a href="https://cartographymaster.eu/"><img src="assets/cartography-motto.png" width="113" alt="Cartography: Thinking, doing, showing"></a><br>
-Birthday Atlas - 16th Intake
+Birthday Atlas
 </h1>
 
 > ### *We make maps. We also make time for cake.*
