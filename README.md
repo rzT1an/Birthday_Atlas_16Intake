@@ -17,11 +17,6 @@ Pick a birthday to find a familiar face in the group photo and see where they ca
 
 Want a reminder before the next slice? Use **Add birthdays to my calendar** on the site. Birthdays repeat every year.
 
----
-
-<details>
-<summary>Adding to the atlas</summary>
+### Adding to the atlas
 
 Add new celebration photos to `events/<name>/` and link them from the Events section in `index.html`. Edits made in the website editor are saved in that browser. If you change a birthday, update both `index.html` and `cartography-16th-birthdays.ics`.
-
-</details>
