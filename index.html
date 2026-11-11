@@ -165,12 +165,32 @@ main{position:relative;z-index:2}
 .calendar-subscribe-options p{font-size:12px;margin:6px 0}
 .calendar-subscribe-options input{width:100%;font:inherit;margin:4px 0 7px}
 @media(max-width:640px){.calendar-subscribe-options{left:0;right:auto}}
+.calendar-subscribe summary{display:flex;align-items:center;gap:7px;min-height:42px;padding:9px 13px;border:1px solid #cddbe8;background:#f3f7fb;color:#234562;font-weight:650}
+.calendar-subscribe summary span{color:#315d84}
+.calendar-subscribe[open] summary{background:#e6eff7}
+.calendar-subscribe-options{width:min(350px,82vw);padding:14px;border-color:#d3dfe9;background:#f8fbfd;box-shadow:0 12px 30px #24374e24}
+.calendar-subscribe-options a{display:flex;align-items:center;min-height:42px;padding:7px 10px;border-bottom:1px solid #dce6ef;text-decoration:none;color:#244968;font-weight:650}
+.calendar-subscribe-options a:hover{background:#eaf2f8}
+.calendar-subscribe-options p{margin:10px 0;color:#465b71}
+.calendar-subscribe-options input{min-height:36px;border:1px solid #cedbe8;border-radius:7px;padding:5px 8px;color:#334b63}
+.calendar-subscribe-options button{margin:2px 3px 2px 0}
+#event-editor{background:#f8fbfd;border-color:#d2deea;padding:clamp(18px,4vw,28px)}
+#event-editor::backdrop{background:#1e344c88}
+#event-editor .editor-kicker{margin:0 0 5px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#486783}
+#event-editor-title{color:#233e57}
+#event-form label{font-size:13px;font-weight:650;color:#334f68}
+#event-form input,#event-form textarea{padding:10px;border:1px solid #cedbe8;border-radius:9px;background:#fff;color:#233e57;font-size:16px;font-weight:400}
+#event-form input::file-selector-button{border:0;border-radius:6px;padding:6px 8px;background:#e8f0f8;color:#254968;font:inherit;font-size:13px}
+#event-edit-status{font-size:12px;color:#4e647b}
+#event-save{background:#254968;color:white}
+#event-save:hover{background:#315d84}
+@media(max-width:640px){.calendar-subscribe{width:100%}.calendar-subscribe summary{width:fit-content}.calendar-subscribe-options{width:min(350px,100%)}}
 </style>
 <div id="atlas-backdrop" aria-hidden="true"></div>
 <main>
 <div id="overview"><header><div class="eyebrow">Cartography · Mobile demo</div><h1>Birthday Atlas</h1></header>
 <section class="card" id="year-card" aria-labelledby="year-title"><div class="year-heading"><h2 id="year-title">The year at a glance</h2><details class="calendar-subscribe">
-  <summary>Add birthdays to my calendar</summary>
+  <summary><span aria-hidden="true">＋</span> Add birthdays to my calendar</summary>
   <div class="calendar-subscribe-options">
     <div id="calendar-providers" hidden>
       <a id="subscribe-apple">Apple Calendar</a>
@@ -211,9 +231,9 @@ main{position:relative;z-index:2}
 <dialog id="event-image-viewer" aria-label="Event photo"><button type="button" aria-label="Close photo">×</button><img alt=""></dialog>
 <dialog id="event-editor" aria-labelledby="event-editor-title">
   <form id="event-form">
-    <h2 id="event-editor-title">Edit event</h2>
+    <p class="editor-kicker">Birthday Atlas · Events</p><h2 id="event-editor-title">Edit event</h2>
     <label>Title <input id="event-title-input" required></label>
-    <label>Story <textarea id="event-story-input" rows="6" required></textarea></label>
+    <label>Story <textarea id="event-story-input" rows="4" required></textarea></label>
     <label>Add photos <input id="event-files" type="file" accept="image/*" multiple></label>
     <ul id="event-photo-list"></ul>
     <p id="event-edit-status" role="status">Edits are saved in this browser.</p>
@@ -770,8 +790,18 @@ byId('download-birthdays').onclick = () => {
   link.click();
   setTimeout(() => URL.revokeObjectURL(url),1000);
 };
+const calendarMenu = document.querySelector('.calendar-subscribe');
+document.addEventListener('click', event => {
+  if (calendarMenu.open && !calendarMenu.contains(event.target)) calendarMenu.open = false;
+});
+document.addEventListener('keydown', event => {
+  if (event.key !== 'Escape' || !calendarMenu.open) return;
+  calendarMenu.open = false;
+  calendarMenu.querySelector('summary').focus();
+});
 </script>
 </html>
+
 
 
 
