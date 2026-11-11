@@ -275,7 +275,7 @@ main{position:relative;z-index:2}
   <div class="events-footer">
     <p class="events-closing">There are plenty more birthdays to celebrate together. We’ll keep adding our favourite moments here, so stay tuned!</p>
     <a id="events-edit-link" class="events-view-link" href="?view=edit">Edit events with a class invitation →</a>
-    <a id="events-public-link" class="events-view-link" href="?view=events" hidden>View published events →</a>
+    <a id="events-public-link" class="events-view-link" href="?view=events" target="_blank" rel="noopener" hidden>View published events ↗</a>
   </div>
 </section>
 <dialog id="event-image-viewer" aria-label="Event photo"><button type="button" aria-label="Close photo">×</button><img alt=""></dialog>
@@ -830,11 +830,11 @@ for (const entry of document.querySelectorAll('[data-event]')) {
   saveStatus.setAttribute('role','status');
   edit.disabled = true;
   if (classInvite) entry.querySelector('.event-body').append(edit,saveStatus);
-  const publishedEvent = location.protocol === 'file:' ? Promise.resolve(null) :
+  const readPublishedEvent = () => location.protocol === 'file:' ? Promise.resolve(null) :
     fetch(new URL('events/' + eventId + '/event.json', location.href), {cache:'no-cache'})
       .then(response => response.ok ? response.json() : null)
       .catch(() => null);
-  Promise.all([eventDatabase,publishedEvent]).then(([database,published]) => {
+  Promise.all([eventDatabase,readPublishedEvent()]).then(([database,published]) => {
     if (published && typeof published.revision === 'string' && Array.isArray(published.photos)) {
       current = published;
       displayEvent(entry,current);
@@ -854,6 +854,7 @@ for (const entry of document.querySelectorAll('[data-event]')) {
         displayEvent(entry,saved);
         current = {...saved,revision:saved.submittedRevision,photos:saved.publishedPhotos};
       } else if (saved && !saved.submittedRevision && !olderDraft) {
+        saveStatus.textContent = 'Unpublished changes are saved here. Open Edit event and save again to publish.';
         current = {
           revision:null,
           ...request.result,
@@ -875,6 +876,16 @@ for (const entry of document.querySelectorAll('[data-event]')) {
     };
     request.onerror = () => { edit.disabled = false; };
   });
+  if (!classInvite) {
+    document.addEventListener('visibilitychange',async () => {
+      if (document.hidden) return;
+      const published = await readPublishedEvent();
+      if (published?.revision && published.revision !== current.revision && Array.isArray(published.photos)) {
+        current = published;
+        displayEvent(entry,current);
+      }
+    });
+  }
   edit.onclick = () => {
     if (eventEditor.open) return;
     eventDraft = {...current,photos:[...current.photos]};
@@ -921,8 +932,12 @@ async function publishSharedEvent(eventId, data) {
     }
     return {src:photo.src,alt:photo.alt};
   })}));
+  // Small edits can finish even if the browser navigates away.
+  const keepalive = !data.photos.some(photo => photo.file) &&
+    new TextEncoder().encode(form.get('event')).length < 60000;
   const response = await fetch(new URL('events/' + eventId,sharedEventsEndpoint + '/'), {
     method:'POST',headers:{Authorization:'Bearer ' + classInvite},body:form,
+    keepalive,
     signal:AbortSignal.timeout(30000)
   });
   const result = await response.json();
