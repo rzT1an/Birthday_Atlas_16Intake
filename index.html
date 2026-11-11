@@ -122,6 +122,7 @@ header .eyebrow{font-size:clamp(12px,1.3vw,15px)}
 .events-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px 24px;margin-top:22px;padding-top:16px;border-top:1px solid #e1e6ed}
 .events-footer:not(:has(> :not([hidden]))){display:none}
 .events-footer .events-closing{margin:0;max-width:64ch}
+#events-edit-link{margin-inline-start:auto}
 .events-view-link,.events-view-link:visited{display:inline-flex;align-items:center;min-height:44px;padding:8px 12px;border-radius:10px;background:#edf3ff;color:#124a9c;font-size:.9em;font-weight:600;text-decoration:none}
 .events-view-link:hover{background:#dce9ff}
 .events-view-link:focus-visible{outline:2px solid #1764c2;outline-offset:2px}
@@ -280,7 +281,7 @@ main{position:relative;z-index:2}
   </article>
   <!-- Add new birthday events above this closing note. -->
   <div class="events-footer">
-    <p id="events-publish-note" class="events-closing" hidden>After saving, changes may take a minute or two to appear on the public site.</p>
+    <p id="events-publish-note" class="events-closing" hidden>New events and edits usually appear on the public site within a few minutes. If publishing is delayed, check back later.</p>
     <a id="events-edit-link" class="events-view-link" href="?view=edit">Edit events with a class invitation →</a>
     <a id="events-public-link" class="events-view-link" href="?view=events" target="_blank" rel="noopener" hidden>View published events ↗</a>
   </div>
