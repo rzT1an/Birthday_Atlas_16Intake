@@ -225,7 +225,7 @@ main{position:relative;z-index:2}
       <p>On our way to the first bar, Robert lit a sparkler and we sang “Happy Birthday” to him in different languages. That’s the moment in the photo, and one of the funniest parts of the night. We played billiards at the first bar, then carried on to a second one.</p>
     </div>
     <div class="event-gallery">
-      <a href="robert-celebration.jpg"><img src="robert-celebration.jpg" alt="Robert holding a sparkler on Schellingstraße" loading="lazy"></a>
+      <a href="events/robert/celebration.jpg"><img src="events/robert/celebration.jpg" alt="Robert holding a sparkler on Schellingstraße" loading="lazy"></a>
     </div>
   </div>
     </details>
@@ -238,9 +238,9 @@ main{position:relative;z-index:2}
       <p>Tina couldn’t find a number 7 candle, so she used a 3 and a 4 instead. With all three candles lined up, it looked like Ivetta was turning 234. A little weird, sure. But we can do the math. 3 + 4 = 7. There we go. Happy 27th, Ivetta!</p>
     </div>
     <div class="event-gallery">
-      <a href="ivetta-surprise.jpg"><img src="ivetta-surprise.jpg" alt="The classroom surprise, with balloons and a birthday banner" loading="lazy"></a>
-      <a href="ivetta-candles.jpg"><img src="ivetta-candles.jpg" alt="Ivetta blowing out the birthday candles" loading="lazy"></a>
-      <a href="ivetta-cake.jpg"><img src="ivetta-cake.jpg" alt="Birthday cake with lit number candles 2, 3, and 4" loading="lazy"></a>
+      <a href="events/ivetta/surprise.jpg"><img src="events/ivetta/surprise.jpg" alt="The classroom surprise, with balloons and a birthday banner" loading="lazy"></a>
+      <a href="events/ivetta/candles.jpg"><img src="events/ivetta/candles.jpg" alt="Ivetta blowing out the birthday candles" loading="lazy"></a>
+      <a href="events/ivetta/cake.jpg"><img src="events/ivetta/cake.jpg" alt="Birthday cake with lit number candles 2, 3, and 4" loading="lazy"></a>
     </div>
   </div>
     </details>
@@ -828,7 +828,7 @@ byId('download-birthdays').onclick = () => {
   const url = URL.createObjectURL(new Blob([birthdayCalendar()],{type:'text/calendar;charset=utf-8'}));
   const link = make('a','');
   link.href = url;
-  link.download = 'birthday-atlas.ics';
+  link.download = 'cartography-16th-birthdays.ics';
   link.click();
   setTimeout(() => URL.revokeObjectURL(url),1000);
 };
