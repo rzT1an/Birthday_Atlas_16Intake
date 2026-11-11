@@ -5,9 +5,7 @@ Birthday Atlas
 
 > ### *We make maps. We also make time for cake.*
 
-We are a group of students from the 16th intake of Cartography M.Sc. This is where we keep track of each other's birthdays and collect photos from the ones we've celebrated together.
-
-[View Birthday Atlas](https://rzt1an.github.io/Birthday_Atlas_16Intake/) · [Edit events with a class invitation](https://rzt1an.github.io/Birthday_Atlas_16Intake/?view=edit)
+We are a group of students from the 16th intake of Cartography M.Sc. This is where we keep track of each other's birthdays and collect photos from the ones we've celebrated together. [View Birthday Atlas](https://rzt1an.github.io/Birthday_Atlas_16Intake/)
 
 <img src="intake-photo.jpg" width="720" alt="Cartography 16th Intake group photo">
 
@@ -21,4 +19,4 @@ Want a reminder before the next slice? Use **Add birthdays to my calendar** on t
 
 ### Adding to the atlas
 
-Use the class invitation to edit an existing celebration, add photos, or remove them from its gallery. Saved changes sync to this repository. If you change a birthday, update both `index.html` and `cartography-16th-birthdays.ics`.
+At the bottom of the website’s Events section, choose **Edit events with a class invitation**. Use the class invitation to edit a celebration’s story, add photos, or remove photos from its gallery.

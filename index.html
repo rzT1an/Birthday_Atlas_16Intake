@@ -278,6 +278,7 @@ main{position:relative;z-index:2}
   <!-- Add new birthday events above this closing note. -->
   <div class="events-footer">
     <p class="events-closing">There are plenty more birthdays to celebrate together. We’ll keep adding our favourite moments here, so stay tuned!</p>
+    <p id="events-publish-note" class="events-closing" hidden>After saving, changes may take a minute or two to appear on the public site.</p>
     <a id="events-edit-link" class="events-view-link" href="?view=edit">Edit events with a class invitation →</a>
     <a id="events-public-link" class="events-view-link" href="?view=events" target="_blank" rel="noopener" hidden>View published events ↗</a>
   </div>
@@ -706,6 +707,7 @@ if (editingView || view === 'events') {
 }
 if (editingView) {
   byId('events-public-link').hidden = false;
+  byId('events-publish-note').hidden = false;
   document.querySelector('.events-closing').hidden = true;
   byId('events').hidden = !classInvite;
   byId('event-access').hidden = Boolean(classInvite);
