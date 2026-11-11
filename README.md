@@ -1,10 +1,9 @@
-<a href="https://cartographymaster.eu/"><img src="assets/cartography-intake-brand.png" width="290" alt="Cartography 16th Intake: Thinking, doing, showing"></a>
+<h1>
+<a href="https://cartographymaster.eu/"><img src="assets/cartography-intake-brand.png" width="290" alt="Cartography 16th Intake: Thinking, doing, showing"></a><br>
+Birthday Atlas
+</h1>
 
-# Birthday Atlas
-
-We're a group of Cartography students from different parts of the world. This is where we keep track of each other's birthdays and collect photos from the ones we've celebrated together.
-
-[Open the atlas](https://rzt1an.github.io/Birthday-Atlas---16th-intake/)
+We're a group of Cartography students from different parts of the world. This is where we keep track of each other's birthdays and collect photos from the ones we've celebrated together. [Explore Birthday Atlas](https://rzt1an.github.io/Birthday-Atlas---16th-intake/)
 
 <img src="intake-photo.jpg" width="720" alt="Cartography 16th Intake group photo">
 
