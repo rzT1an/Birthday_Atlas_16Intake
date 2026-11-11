@@ -5,7 +5,7 @@ Birthday Atlas
 
 > ### *We make maps. We also make time for cake.*
 
-We are a group of students from the 16th intake of Cartography M.Sc. This is where we keep track of each other's birthdays and collect photos from the ones we've celebrated together. [Explore Birthday Atlas](https://rzt1an.github.io/Birthday-Atlas---16th-intake/)
+We are a group of students from the 16th intake of Cartography M.Sc. This is where we keep track of each other's birthdays and collect photos from the ones we've celebrated together. [Explore Birthday Atlas](https://rzt1an.github.io/Birthday_Atlas_16th_Intake/)
 
 <img src="intake-photo.jpg" width="720" alt="Cartography 16th Intake group photo">
 
