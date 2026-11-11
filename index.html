@@ -653,6 +653,18 @@ const eventFiles = byId('event-files');
 const eventStatus = byId('event-edit-status');
 const eventSave = byId('event-save');
 const eventExport = byId('event-export');
+// Set to the deployed HTTPS Worker URL to enable class publishing.
+const sharedEventsEndpoint = 'https://birthday-atlas-events.rz-tian.workers.dev';
+const inviteStorageKey = 'birthday-atlas-class-invite';
+let classInvite = '';
+if (sharedEventsEndpoint) {
+  const invite = location.hash.match(/^#edit-invite=([A-Za-z0-9_-]{32,128})$/)?.[1];
+  if (invite) {
+    sessionStorage.setItem(inviteStorageKey, invite);
+    history.replaceState(history.state, '', '#events');
+  }
+  classInvite = sessionStorage.getItem(inviteStorageKey) || '';
+}
 eventExport.hidden = location.protocol !== 'https:' && location.protocol !== 'http:';
 const eventCancel = byId('event-cancel');
 let eventDraft;
@@ -724,6 +736,7 @@ function showDraftPhotos() {
 for (const entry of document.querySelectorAll('[data-event]')) {
   const eventId = entry.dataset.event;
   let current = {
+    revision:null,
     title:entry.querySelector('h3').textContent,
     story:[...entry.querySelectorAll('p')].map(p => p.textContent).join('\n\n'),
     photos:[...entry.querySelectorAll('.event-gallery img')].map(img => ({
@@ -737,7 +750,15 @@ for (const entry of document.querySelectorAll('[data-event]')) {
   const edit = make('button','Edit event','event-edit');
   edit.disabled = true;
   entry.querySelector('.event-body').append(edit);
-  eventDatabase.then(database => {
+  const publishedEvent = location.protocol === 'file:' ? Promise.resolve(null) :
+    fetch(new URL('events/' + eventId + '/event.json', location.href), {cache:'no-cache'})
+      .then(response => response.ok ? response.json() : null)
+      .catch(() => null);
+  Promise.all([eventDatabase,publishedEvent]).then(([database,published]) => {
+    if (published && typeof published.revision === 'string' && Array.isArray(published.photos)) {
+      current = published;
+      displayEvent(entry,current);
+    }
     if (!database) {
       edit.disabled = false;
       return;
@@ -746,6 +767,7 @@ for (const entry of document.querySelectorAll('[data-event]')) {
     request.onsuccess = () => {
       if (request.result) {
         current = {
+          revision:null,
           ...request.result,
           photos:request.result.photos.map(photo => {
             if (photo.file || !photo.src) return photo;
@@ -772,7 +794,11 @@ for (const entry of document.querySelectorAll('[data-event]')) {
     byId('event-title-input').value = current.title;
     byId('event-story-input').value = current.story;
     eventFiles.value = '';
-    eventStatus.textContent = 'Save changes keeps a draft in this browser. Download a publish file to share this event on GitHub.';
+    eventSave.textContent = classInvite ? 'Save changes' : 'Save draft';
+    eventExport.hidden = Boolean(classInvite) || !/^https?:$/.test(location.protocol);
+    eventStatus.textContent = classInvite
+      ? 'Saving publishes this event and its photos to the public atlas.'
+      : 'Drafts stay in this browser. Use the class invitation to publish online.';
     showDraftPhotos();
     editorTrigger = edit;
     if (inlineEditor.matches) {
@@ -823,6 +849,23 @@ async function downloadPublishedEvent(eventId, data) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
+async function publishSharedEvent(eventId, data) {
+  const form = new FormData();
+  form.set('event',JSON.stringify({...data,photos:data.photos.map((photo,index) => {
+    if (photo.file) {
+      form.set('photo-' + index,photo.file);
+      return {alt:photo.alt};
+    }
+    return {src:photo.src,alt:photo.alt};
+  })}));
+  const response = await fetch(new URL('events/' + eventId,sharedEventsEndpoint + '/'), {
+    method:'POST',headers:{Authorization:'Bearer ' + classInvite},body:form
+  });
+  const result = await response.json();
+  if (!response.ok) throw new Error(result.error || 'Could not publish this event.');
+  return result;
+}
+
 eventForm.onsubmit = async event => {
   event.preventDefault();
   const title = byId('event-title-input').value.trim();
@@ -831,7 +874,7 @@ eventForm.onsubmit = async event => {
     eventStatus.textContent = 'Enter a title and a story.';
     return;
   }
-  const data = {title,story,photos:[...eventDraft.photos]};
+  const data = {title,story,revision:eventDraft.revision ?? null,photos:[...eventDraft.photos]};
   savingEvent = eventSave.disabled = eventExport.disabled = eventCancel.disabled = true;
   try {
     if (event.submitter === eventExport) {
@@ -840,7 +883,7 @@ eventForm.onsubmit = async event => {
       return;
     }
     const database = await eventDatabase;
-    if (!database) throw new Error('Storage unavailable');
+    if (!database) throw new Error('Could not save a draft in this browser.');
     await new Promise((resolve,reject) => {
       const transaction = database.transaction('events','readwrite');
       transaction.oncomplete = resolve;
@@ -849,9 +892,19 @@ eventForm.onsubmit = async event => {
     });
     editedEvent.update(data);
     displayEvent(editedEvent.entry,data);
-    eventEditor.close();
+    if (!classInvite) {
+      eventEditor.close();
+      return;
+    }
+    eventStatus.textContent = 'Submitting changes to GitHub…';
+    const result = await publishSharedEvent(editedEvent.eventId,data);
+    editedEvent.update(result.event);
+    eventDraft = {...eventDraft,revision:result.event.revision,photos:result.event.photos};
+    const transaction = database.transaction('events','readwrite');
+    transaction.objectStore('events').delete(editedEvent.eventId);
+    eventStatus.textContent = 'Saved to GitHub. The public site will update after deployment.';
   } catch (error) {
-    eventStatus.textContent = event.submitter === eventExport ? error.message : 'Could not save these changes in this browser.';
+    eventStatus.textContent = error.message || 'Could not save these changes.';
   } finally {
     savingEvent = eventSave.disabled = eventExport.disabled = eventCancel.disabled = false;
   }
