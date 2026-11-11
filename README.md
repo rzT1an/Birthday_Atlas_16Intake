@@ -1,11 +1,11 @@
 <h1>
-<a href="https://cartographymaster.eu/"><img src="assets/cartography-intake-brand-aligned.png" width="290" alt="Cartography 16th Intake: Thinking, doing, showing"></a><br>
+<a href="https://cartographymaster.eu/"><img src="assets/cartography-motto.png" width="113" alt="Cartography: Thinking, doing, showing"></a><br>
 Birthday Atlas
 </h1>
 
 ### *We make maps. We also make time for cake.*
 
-We're a group of Cartography students from different parts of the world. This is where we keep track of each other's birthdays and collect photos from the ones we've celebrated together. [Explore Birthday Atlas](https://rzt1an.github.io/Birthday-Atlas---16th-intake/)
+We are a group of students from the 16th intake of Cartography. This is where we keep track of each other's birthdays and collect photos from the ones we've celebrated together. [Explore Birthday Atlas](https://rzt1an.github.io/Birthday-Atlas---16th-intake/)
 
 <img src="intake-photo.jpg" width="720" alt="Cartography 16th Intake group photo">
 
