@@ -280,6 +280,7 @@ main{position:relative;z-index:2}
     </details>
   </article>
   <!-- Add new birthday events above this closing note. -->
+  <p id="event-delete-status" class="event-save-status" role="status" hidden></p>
   <div class="events-footer">
     <p id="events-publish-note" class="events-closing" hidden>New events and edits usually appear on the public site within a few minutes. If publishing is delayed, check back later.</p>
     <a id="events-edit-link" class="events-view-link" href="?view=edit">Edit events with a class invitation →</a>
@@ -1036,7 +1037,7 @@ async function publishSharedEvent(eventId, data) {
 }
 
 eventDelete.onclick = async () => {
-  if (!classInvite || savingEvent || !confirm('Remove this event from Birthday Atlas?')) return;
+  if (!classInvite || savingEvent || !confirm('Delete this event? Confirming saves the deletion immediately.')) return;
   const {entry,eventId} = editedEvent;
   savingEvent = eventDelete.disabled = eventSave.disabled = eventCancel.disabled = true;
   eventStatus.textContent = 'Deleting…';
@@ -1048,6 +1049,10 @@ eventDelete.onclick = async () => {
     if (database) database.transaction('events','readwrite').objectStore('events').put(event,eventId);
     eventEditor.close();
     entry.hidden = true;
+    const status = byId('event-delete-status');
+    status.hidden = false;
+    status.textContent = 'Event deleted and saved. The public page will update after publishing.';
+    status.scrollIntoView({block:'nearest'});
   } catch (error) {
     eventStatus.textContent = error.message || 'Could not delete this event.';
   } finally {
