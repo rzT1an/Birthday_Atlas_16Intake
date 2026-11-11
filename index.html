@@ -137,7 +137,7 @@ header .eyebrow{font-size:clamp(12px,1.3vw,15px)}
 #event-photo-list{padding:0;list-style:none}
 #event-photo-list li{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:5px 0;overflow-wrap:anywhere}
 #event-photo-list button{flex:none}
-.event-editor-actions{display:flex;justify-content:flex-end;gap:8px}
+.event-editor-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px}
 .calendar-year{color:#536279;font:500 .48em "DM Sans",Arial,sans-serif;margin-left:.35em;letter-spacing:0}
 #event-image-viewer{position:fixed;inset:0;width:100%;height:100%;max-width:none;max-height:none;padding:36px;margin:0;border:0;background:transparent;box-shadow:none}
 #event-image-viewer[open]{display:grid;place-items:center}
@@ -228,6 +228,7 @@ main{position:relative;z-index:2}
     </div>
     <div class="event-gallery">
       <a href="events/robert/celebration.jpg"><img src="events/robert/celebration.jpg" alt="Robert holding a sparkler on Schellingstraße" loading="lazy"></a>
+      <a href="events/robert/billiards.jpg"><img src="events/robert/billiards.jpg" alt="Billiards at the first bar" loading="lazy"></a>
     </div>
   </div>
     </details>
@@ -258,8 +259,8 @@ main{position:relative;z-index:2}
     <label>Story <textarea id="event-story-input" rows="4" required></textarea></label>
     <label>Add photos <input id="event-files" type="file" accept="image/*" multiple></label>
     <ul id="event-photo-list"></ul>
-    <p id="event-edit-status" role="status">Edits are saved in this browser.</p>
-    <div class="event-editor-actions"><button type="button" id="event-cancel">Cancel</button><button type="submit" id="event-save">Save changes</button></div>
+    <p id="event-edit-status" role="status">Save changes keeps a draft in this browser. Download a publish file to share this event on GitHub.</p>
+    <div class="event-editor-actions"><button type="button" id="event-cancel">Cancel</button><button type="submit" id="event-export" hidden>Download publish file</button><button type="submit" id="event-save">Save changes</button></div>
   </form>
 </dialog>
 </main>
@@ -651,6 +652,8 @@ const eventForm = byId('event-form');
 const eventFiles = byId('event-files');
 const eventStatus = byId('event-edit-status');
 const eventSave = byId('event-save');
+const eventExport = byId('event-export');
+eventExport.hidden = location.protocol !== 'https:' && location.protocol !== 'http:';
 const eventCancel = byId('event-cancel');
 let eventDraft;
 let editedEvent;
@@ -693,7 +696,7 @@ function displayEvent(entry, data) {
     const link = make('a','');
     link.href = photo.file ? URL.createObjectURL(photo.file) : photo.src;
     const image = make('img','');
-    image.src = link.href;
+    image.src = link.getAttribute('href');
     image.alt = photo.alt;
     image.loading = 'lazy';
     link.append(image);
@@ -769,7 +772,7 @@ for (const entry of document.querySelectorAll('[data-event]')) {
     byId('event-title-input').value = current.title;
     byId('event-story-input').value = current.story;
     eventFiles.value = '';
-    eventStatus.textContent = 'Edits are saved in this browser.';
+    eventStatus.textContent = 'Save changes keeps a draft in this browser. Download a publish file to share this event on GitHub.';
     showDraftPhotos();
     editorTrigger = edit;
     if (inlineEditor.matches) {
@@ -793,6 +796,33 @@ eventCancel.onclick = () => eventEditor.close();
 eventEditor.addEventListener('cancel',event => {
   if (savingEvent) event.preventDefault();
 });
+async function downloadPublishedEvent(eventId, data) {
+  const pageUrl = new URL('index.html', location.href);
+  const response = await fetch(pageUrl, {cache:'no-store'});
+  if (!response.ok) throw new Error('Could not load the published page.');
+  const page = new DOMParser().parseFromString(await response.text(), 'text/html');
+  const entry = [...page.querySelectorAll('[data-event]')].find(item => item.dataset.event === eventId);
+  if (!entry) throw new Error('This event no longer exists on the published page.');
+  const photos = await Promise.all(data.photos.map(photo => {
+    if (!photo.file) return photo;
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve({src:reader.result, alt:photo.alt});
+      reader.onerror = () => reject(new Error('Could not read an added photo.'));
+      reader.readAsDataURL(photo.file);
+    });
+  }));
+  displayEvent(entry, {...data, photos});
+  const file = new Blob(['<!doctype html>\n', page.documentElement.outerHTML], {type:'text/html;charset=utf-8'});
+  if (file.size > 25 * 1024 * 1024) throw new Error('The file is too large for GitHub web upload. Try smaller photos.');
+  const link = make('a','');
+  const url = URL.createObjectURL(file);
+  link.href = url;
+  link.download = 'index.html';
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
 eventForm.onsubmit = async event => {
   event.preventDefault();
   const title = byId('event-title-input').value.trim();
@@ -802,8 +832,13 @@ eventForm.onsubmit = async event => {
     return;
   }
   const data = {title,story,photos:[...eventDraft.photos]};
-  savingEvent = eventSave.disabled = eventCancel.disabled = true;
+  savingEvent = eventSave.disabled = eventExport.disabled = eventCancel.disabled = true;
   try {
+    if (event.submitter === eventExport) {
+      await downloadPublishedEvent(editedEvent.eventId, data);
+      eventStatus.textContent = 'Upload index.html to the root of the GitHub repository and commit it to publish this event.';
+      return;
+    }
     const database = await eventDatabase;
     if (!database) throw new Error('Storage unavailable');
     await new Promise((resolve,reject) => {
@@ -815,10 +850,10 @@ eventForm.onsubmit = async event => {
     editedEvent.update(data);
     displayEvent(editedEvent.entry,data);
     eventEditor.close();
-  } catch {
-    eventStatus.textContent = 'Could not save these changes in this browser.';
+  } catch (error) {
+    eventStatus.textContent = event.submitter === eventExport ? error.message : 'Could not save these changes in this browser.';
   } finally {
-    savingEvent = eventSave.disabled = eventCancel.disabled = false;
+    savingEvent = eventSave.disabled = eventExport.disabled = eventCancel.disabled = false;
   }
 };
 function birthdayCalendar() {
