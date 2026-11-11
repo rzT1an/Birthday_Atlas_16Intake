@@ -229,13 +229,12 @@ main{position:relative;z-index:2}
 </div><p class="map-credit"><a href="https://www.naturalearthdata.com/downloads/110m-physical-vectors/110m-land/">Natural Earth</a> · <span id="map-status">Loading basemap…</span> <a id="city-detail" hidden target="_blank" rel="noopener noreferrer">Open in Google Maps ↗</a></p></details></div></div><div class="section-links"><a class="events-link" href="#events">Events ↓</a></div></section>
 <section id="event-access" class="card" hidden aria-labelledby="event-access-title">
   <h2 id="event-access-title">Edit events</h2>
-  <p>Open the class invitation or paste it here to edit birthday stories and photos.</p>
+  <p>Enter the class password to edit birthday stories and photos.</p>
   <form id="event-access-form">
-    <label>Class invitation link <input id="event-invite-input" type="password" autocomplete="off" required></label>
+    <label>Class password <input id="event-invite-input" type="password" autocomplete="off" required></label>
     <button type="submit">Open editor</button>
   </form>
   <p id="event-access-status" role="status"></p>
-  <a class="events-view-link" href="?view=events">View published events →</a>
 </section>
 <section id="events" class="card" aria-labelledby="events-title">
   <button class="events-back" id="events-back-year">← Back to year</button>
@@ -708,21 +707,40 @@ if (editingView) {
   byId('event-access').hidden = Boolean(classInvite);
   if (classInvite) byId('events-title').textContent = 'Edit events';
 }
-byId('event-access-form').onsubmit = event => {
+byId('event-access-form').onsubmit = async event => {
   event.preventDefault();
-  let key;
-  try {
-    const link = new URL(byId('event-invite-input').value.trim());
-    if (link.origin === location.origin && link.pathname === location.pathname) {
-      key = link.hash.match(invitePattern)?.[1];
-    }
-  } catch {}
+  const input = byId('event-invite-input');
+  const status = byId('event-access-status');
+  const button = event.currentTarget.querySelector('button');
+  const key = ('#edit-invite=' + input.value.trim()).match(invitePattern)?.[1];
   if (!key) {
-    byId('event-access-status').textContent = 'Paste the complete Birthday Atlas class invitation link.';
+    status.textContent = 'Enter the class password.';
     return;
   }
-  sessionStorage.setItem(inviteStorageKey,key);
-  location.reload();
+  button.disabled = true;
+  status.textContent = 'Checking password…';
+  try {
+    // A validation-only request checks authorization before reaching GitHub.
+    const form = new FormData();
+    form.set('event','null');
+    const response = await fetch(sharedEventsEndpoint + '/events/robert',{
+      method:'POST',headers:{Authorization:'Bearer ' + key},body:form,
+      signal:AbortSignal.timeout(10000)
+    });
+    const result = await response.json();
+    if (response.status === 401) {
+      status.textContent = 'That password is incorrect.';
+    } else if (response.status === 400 && result.error === 'Check the title, story and photos before publishing.') {
+      sessionStorage.setItem(inviteStorageKey,key);
+      location.reload();
+    } else {
+      throw new Error('Unexpected response');
+    }
+  } catch {
+    status.textContent = 'Could not check the password. Try again.';
+  } finally {
+    button.disabled = false;
+  }
 };
 const eventCancel = byId('event-cancel');
 let eventDraft;
