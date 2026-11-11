@@ -1,9 +1,9 @@
 <h1>
 <a href="https://cartographymaster.eu/"><img src="assets/cartography-motto.png" width="113" alt="Cartography: Thinking, doing, showing"></a><br>
-Birthday Atlas - 16 Intake
+Birthday Atlas - 16th Intake
 </h1>
 
-### *We make maps. We also make time for cake.*
+> ### *We make maps. We also make time for cake.*
 
 We are a group of students from the 16th intake of Cartography M.Sc. This is where we keep track of each other's birthdays and collect photos from the ones we've celebrated together. [Explore Birthday Atlas](https://rzt1an.github.io/Birthday-Atlas---16th-intake/)
 
