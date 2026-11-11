@@ -187,6 +187,7 @@ main{position:relative;z-index:2}
 @media(max-width:640px){.calendar-subscribe{width:100%}.calendar-subscribe summary{width:fit-content}.calendar-subscribe-options{width:min(350px,100%)}}
 #subscribe-apple,.calendar-provider{position:relative;top:-7px}
 .calendar-provider{border-bottom:1px solid #dce6ef;padding-bottom:6px}.calendar-provider a{border:0}.calendar-provider p{margin:0 10px 4px}
+#event-editor.inline-editor{position:static;width:100%;max-width:none;max-height:none;margin:12px 0 0}
 </style>
 <div id="atlas-backdrop" aria-hidden="true"></div>
 <main>
@@ -653,6 +654,22 @@ const eventCancel = byId('event-cancel');
 let eventDraft;
 let editedEvent;
 let savingEvent = false;
+let editorTrigger;
+const editorHome = eventEditor.parentElement;
+const inlineEditor = matchMedia('(max-width: 640px), (hover: none) and (pointer: coarse)');
+eventEditor.addEventListener('close', () => {
+  if (eventEditor.classList.contains('inline-editor')) {
+    eventEditor.classList.remove('inline-editor');
+    editorHome.append(eventEditor);
+    editorTrigger?.focus({preventScroll:true});
+  }
+  editorTrigger = undefined;
+});
+eventEditor.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && eventEditor.classList.contains('inline-editor') && !savingEvent) {
+    eventEditor.close();
+  }
+});
 
 const eventDatabase = new Promise((resolve,reject) => {
   const request = indexedDB.open('birthday-atlas-events',1);
@@ -709,6 +726,10 @@ for (const entry of document.querySelectorAll('[data-event]')) {
       src:img.getAttribute('src'),alt:img.alt
     }))
   };
+  const previousPhotoPaths = new Map(current.photos.map(photo => {
+    const filename = photo.src.split('/').pop();
+    return [eventId + '-' + filename, photo.src];
+  }));
   const edit = make('button','Edit event','event-edit');
   edit.disabled = true;
   entry.querySelector('.event-body').append(edit);
@@ -720,7 +741,17 @@ for (const entry of document.querySelectorAll('[data-event]')) {
     const request = database.transaction('events').objectStore('events').get(eventId);
     request.onsuccess = () => {
       if (request.result) {
-        current = request.result;
+        current = {
+          ...request.result,
+          photos:request.result.photos.map(photo => {
+            if (photo.file || !photo.src) return photo;
+            const savedUrl = new URL(photo.src, location.href);
+            if (savedUrl.origin !== location.origin) return photo;
+            const relativePath = savedUrl.pathname.slice(new URL('.',location.href).pathname.length);
+            const updatedPath = previousPhotoPaths.get(relativePath);
+            return updatedPath ? {...photo,src:updatedPath} : photo;
+          })
+        };
         if (eventId === 'robert' && /^(Celebrating Robert|Robert[’']s birthday(?: party)?)$/.test(current.title)) {
           current = {...current,title:"Robert's birthday party"};
         }
@@ -731,6 +762,7 @@ for (const entry of document.querySelectorAll('[data-event]')) {
     request.onerror = () => { edit.disabled = false; };
   });
   edit.onclick = () => {
+    if (eventEditor.open) return;
     eventDraft = {...current,photos:[...current.photos]};
     editedEvent = {entry,eventId,update:data => { current = data; }};
     byId('event-title-input').value = current.title;
@@ -738,7 +770,15 @@ for (const entry of document.querySelectorAll('[data-event]')) {
     eventFiles.value = '';
     eventStatus.textContent = 'Edits are saved in this browser.';
     showDraftPhotos();
-    eventEditor.showModal();
+    editorTrigger = edit;
+    if (inlineEditor.matches) {
+      edit.after(eventEditor);
+      eventEditor.classList.add('inline-editor');
+      eventEditor.show();
+      eventEditor.scrollIntoView({block:'nearest'});
+    } else {
+      eventEditor.showModal();
+    }
   };
 }
 eventFiles.onchange = () => {
