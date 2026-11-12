@@ -755,7 +755,7 @@ byId('event-access-form').onsubmit = async event => {
   const input = byId('event-invite-input');
   const status = byId('event-access-status');
   const button = event.currentTarget.querySelector('button');
-  const key = input.value.trim().match(/^[A-Za-z0-9_-]{9,128}$/)?.[0];
+  const key = input.value.trim();
   if (!key) {
     status.textContent = 'Enter the class password.';
     return;
