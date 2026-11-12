@@ -17,6 +17,8 @@ Pick a birthday to find a familiar face in the group photo and see where they ca
 
 Want a reminder before the next slice? Use **Add birthdays to my calendar** on the site. Birthdays repeat every year.
 
+Open the atlas on your birthday. There’s a little surprise waiting for you!
+
 ### Adding to the atlas
 
 At the bottom of the website’s Events section, choose **Edit events with a class invitation**. Use the class invitation to edit a celebration’s story, add photos, or remove photos from its gallery.
