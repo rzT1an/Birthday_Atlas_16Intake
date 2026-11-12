@@ -20,6 +20,12 @@ Want a reminder before the next slice? Use **Add birthdays to my calendar** on t
 ### Adding to the atlas
 
 At the bottom of the website’s Events section, choose **Edit events with a class invitation**. Use the class invitation to edit a celebration’s story, add photos, or remove photos from its gallery.
+
+This little atlas is ours. After entering the class password, pick how you’d like to chip in.
+
+- **Sign in with GitHub** to have your saved edits credited to your GitHub account as a contributor.
+- **Continue as a guest** if you’d rather keep your name off the edits. Our class bot will do the GitHub paperwork for you.
+
 > [!NOTE]
 > **Hint:** Look at the room number on the door of our usual classroom. :)
 >
