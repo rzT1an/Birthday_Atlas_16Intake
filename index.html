@@ -234,6 +234,13 @@ main{position:relative;z-index:2}
 
 </div>
 </div><p class="map-credit"><a href="https://www.naturalearthdata.com/downloads/110m-physical-vectors/110m-land/">Natural Earth</a> · <span id="map-status">Loading basemap…</span> <a id="city-detail" hidden target="_blank" rel="noopener noreferrer">Open in Google Maps ↗</a></p></details></div></div><div class="section-links"><a class="events-link" href="#events">Events ↓</a></div></section>
+<section id="event-identity" class="card" hidden aria-labelledby="event-identity-title">
+  <h2 id="event-identity-title">How would you like to edit?</h2>
+  <p>Sign in to receive credit on GitHub for the changes you publish. Guests can edit and publish too.</p>
+  <button type="button" id="event-github">Sign in with GitHub</button>
+  <button type="button" id="event-guest">Continue as guest</button>
+  <p id="event-identity-status" role="status"></p>
+</section>
 <section id="event-access" class="card" hidden aria-labelledby="event-access-title">
   <h2 id="event-access-title">Edit events</h2>
   <p>Enter the class password to edit birthday stories and photos.</p>
@@ -735,7 +742,74 @@ if (invite) {
 }
 const view = viewUrl.searchParams.get('view');
 const editingView = view === 'edit';
-const classInvite = editingView ? sessionStorage.getItem(inviteStorageKey) || '' : '';
+const classPassword = editingView ? sessionStorage.getItem(inviteStorageKey) || '' : '';
+const creditStorageKey = 'birthday-atlas-credit';
+const githubStateKey = 'birthday-atlas-github-state';
+const identity = classPassword ? JSON.parse(sessionStorage.getItem(creditStorageKey) || 'null') : null;
+const classInvite = identity ? classPassword : '';
+const oauthCallback = new URL('?view=edit', location.href);
+if (classPassword && !identity) {
+  byId('event-identity').hidden = false;
+  const status = byId('event-identity-status');
+  const githubButton = byId('event-github');
+  const guestButton = byId('event-guest');
+  const select = value => {
+    sessionStorage.setItem(creditStorageKey, JSON.stringify(value));
+    location.replace(oauthCallback);
+  };
+  guestButton.onclick = () => select({guest:true});
+  const authRequest = (path, body) => fetch(sharedEventsEndpoint + path,{
+    method:'POST', headers:{Authorization:'Bearer ' + classPassword, 'Content-Type':'application/json'},
+    body:JSON.stringify(body), signal:AbortSignal.timeout(15000)
+  });
+  const randomHex = () => Array.from(crypto.getRandomValues(new Uint8Array(32)), byte => byte.toString(16).padStart(2,'0')).join('');
+  const authorize = async () => {
+    githubButton.disabled = true;
+    try {
+      const response = await authRequest('/auth/options',{});
+      const options = await response.json();
+      if (response.status === 401) {
+        sessionStorage.removeItem(inviteStorageKey);
+        location.replace(oauthCallback);
+        return;
+      }
+      if (!response.ok || !options.clientId) throw new Error();
+      const state = randomHex();
+      const verifier = randomHex();
+      const digest = new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(verifier)));
+      const challenge = btoa(String.fromCharCode(...digest)).replaceAll('+','-').replaceAll('/','_').replace(/=+$/,'');
+      sessionStorage.setItem(githubStateKey,JSON.stringify({state,verifier}));
+      const query = new URLSearchParams({client_id:options.clientId, redirect_uri:oauthCallback.href,
+        state, code_challenge:challenge, code_challenge_method:'S256'});
+      location.assign('https://github.com/login/oauth/authorize?' + query);
+    } catch {
+      status.textContent = 'GitHub sign-in is unavailable. You can continue as a guest.';
+      githubButton.disabled = false;
+    }
+  };
+  githubButton.onclick = authorize;
+  if (viewUrl.searchParams.has('code') || viewUrl.searchParams.has('error')) {
+    const code = viewUrl.searchParams.get('code');
+    const state = viewUrl.searchParams.get('state');
+    history.replaceState(history.state,'',oauthCallback);
+    const pending = JSON.parse(sessionStorage.getItem(githubStateKey) || 'null');
+    sessionStorage.removeItem(githubStateKey);
+    githubButton.disabled = true;
+    guestButton.disabled = true;
+    status.textContent = 'Checking your GitHub sign-in…';
+    Promise.resolve().then(async () => {
+      if (!code || !pending || pending.state !== state) throw new Error();
+      const response = await authRequest('/auth/github',{code,verifier:pending.verifier});
+      const credit = await response.json();
+      if (!response.ok || !credit.proof) throw new Error();
+      select(credit);
+    }).catch(() => {
+      status.textContent = 'GitHub sign-in did not finish. Try again or continue as a guest.';
+      githubButton.disabled = false;
+      guestButton.disabled = false;
+    });
+  }
+}
 if (editingView || view === 'events') {
   byId('overview').hidden = true;
   byId('calendar').hidden = true;
@@ -747,8 +821,18 @@ if (editingView) {
   byId('events-publish-note').hidden = false;
   byId('events-intro').textContent = 'Birthday moments we shared.';
   byId('events').hidden = !classInvite;
-  byId('event-access').hidden = Boolean(classInvite);
-  if (classInvite) byId('events-title').textContent = 'Edit events';
+  byId('event-access').hidden = Boolean(classPassword);
+  if (classInvite) {
+    byId('events-title').textContent = 'Edit events';
+    const switchIdentity = document.createElement('button');
+    switchIdentity.type = 'button';
+    switchIdentity.textContent = identity.login ? 'Signed in as @' + identity.login + ' · Switch' : 'Editing as guest · Switch';
+    switchIdentity.onclick = () => {
+      sessionStorage.removeItem(creditStorageKey);
+      location.replace(oauthCallback);
+    };
+    byId('events-title').after(switchIdentity);
+  }
 }
 byId('event-access-form').onsubmit = async event => {
   event.preventDefault();
@@ -774,6 +858,7 @@ byId('event-access-form').onsubmit = async event => {
     if (response.status === 401) {
       status.textContent = 'That password is incorrect.';
     } else if (response.status === 400 && result.error === 'Check the title, story and photos before publishing.') {
+      sessionStorage.removeItem(creditStorageKey);
       sessionStorage.setItem(inviteStorageKey,key);
       location.reload();
     } else {
@@ -1059,7 +1144,7 @@ async function publishSharedEvent(eventId, data) {
   const keepalive = !data.photos.some(photo => photo.file) &&
     new TextEncoder().encode(form.get('event')).length < 60000;
   const response = await fetch(new URL('events/' + eventId,sharedEventsEndpoint + '/'), {
-    method:'POST',headers:{Authorization:'Bearer ' + classInvite},body:form,
+    method:'POST',headers:{Authorization:'Bearer ' + classInvite,...(identity?.proof ? {'X-Atlas-Credit':identity.proof} : {})},body:form,
     keepalive,
     signal:AbortSignal.timeout(30000)
   });
