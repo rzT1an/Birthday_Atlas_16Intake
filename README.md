@@ -22,6 +22,8 @@ Want a reminder before the next slice? Use **Add birthdays to my calendar** on t
 At the bottom of the website’s Events section, choose **Edit events with a class invitation**. 
 > [!NOTE]
 > **Hint:** Look at the room number on the door of our usual classroom. :)
+>
+
 Use the class invitation to edit a celebration’s story, add photos, or remove photos from its gallery.
 
 
